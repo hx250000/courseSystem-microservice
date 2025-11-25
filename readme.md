@@ -1,67 +1,165 @@
-# 校园选课系统（School Course Management System）
+# 校园选课系统--微服务版（School Course Management System - Microservices Version）
 
-# 一、系统概述
+# 一、项目简介
+项目名称：校园选课系统--微服务版（School Course Management System - Microservices Version）
+项目版本：1.2.0
+基于版本：1.1.0（单体应用版）
+微服务架构说明：本系统模拟了高校的**选课业务逻辑**，实现了学生管理、课程管理与选课管理等模块，其中，将课程管理单独拆分、学生管理和选课管理单独拆分，形成两个微服务。  
+# 二、微服务架构图
+客户端
+  ↓
+  ├─→ catalog-service (8081) → catalog_db (3307)
+  │   └── 课程管理
+  │
+  └─→ enrollment-service (8082) → enrollment_db (3308)
+      ├── 学生管理
+      ├── 选课管理
+      └── HTTP调用 → catalog-service（验证课程）
+# 三、技术栈
+ - Spring Boot 3.5.7
+ - Java 25
+ - MySQL 8.4
+ - Docker & Docker Compose
+ - RestTemplate（服务间通信）
+# 四、环境要求
+ - JDK 25+
+ - Maven 3.8+
+ - Docker 20.10+
+ - Docker Compose 2.0+
+# 五、项目结构
+course-microservice
+C:.
+│  .dockerignore
+│  .gitattributes
+│  .gitignore
+│  coursetest.openapi.json
+│  docker-compose.yml
+│  Dockerfile
+│  HELP.md
+│  readme.md
+│  test-service.sh
+│
+├─catalog-service
+│  │  .dockerignore
+│  │  .gitignore
+│  │  Dockerfile
+│  │  mvnw
+│  │  mvnw.cmd
+│  │  pom.xml
+│  │
+│  ├─.idea
+│  │      .gitignore
+│  │      ApifoxUploaderProjectSetting.xml
+│  │      compiler.xml
+│  │      encodings.xml
+│  │      jarRepositories.xml
+│  │      misc.xml
+│  │      uiDesigner.xml
+│  │      workspace.xml
+│  │
+│  └─src
+│    └─main
+│      ├─java
+│      │  └─com
+│      │      └─zjgsu
+│      │          └─hx
+│      │              └─catalog_service
+│      │                  │  catalog_serviceApplication.java
+│      │                  │
+│      │                  ├─common
+│      │                  │      ApiResponse.java
+│      │                  │
+│      │                  ├─controller
+│      │                  │      CourseController.java
+│      │                  │
+│      │                  ├─exception
+│      │                  │      GlobalExceptionHandler.java
+│      │                  │      ResourceConflictException.java
+│      │                  │      ResourceNotFoundException.java
+│      │                  │
+│      │                  ├─model
+│      │                  │      Course.java
+│      │                  │      Instructor.java
+│      │                  │      ScheduleSlot.java
+│      │                  │
+│      │                  ├─repository
+│      │                  │      CourseRepository.java
+│      │                  │
+│      │                  └─service
+│      │                          CourseService.java
+│      │
+│      └─resources
+│          │  application-docker.yml
+│          │  application.yml
+│          │
+│          ├─db
+│          │      data.sql
+│          │      schema.sql
+│          │
+│          ├─static
+│          └─templates
+│  
+└─enrollment-service
+    │  .dockerignore
+    │  .gitignore
+    │  Dockerfile
+    │  mvnw
+    │  mvnw.cmd
+    │  pom.xml
+    │
+    └─src
+      └─main
+        ├─java
+        │  └─com
+        │      └─zjgsu
+        │          └─hx
+        │              └─enrollment_service
+        │                  │  enrollment_serviceApplication.java
+        │                  │
+        │                  ├─common
+        │                  │      ApiResponse.java
+        │                  │
+        │                  ├─controller
+        │                  │      EnrollmentController.java
+        │                  │      StudentController.java
+        │                  │
+        │                  ├─exception
+        │                  │      GlobalExceptionHandler.java
+        │                  │      ResourceConflictException.java
+        │                  │      ResourceNotFoundException.java
+        │                  │
+        │                  ├─model
+        │                  │      Enrollment.java
+        │                  │      Status.java
+        │                  │      Student.java
+        │                  │
+        │                  ├─repository
+        │                  │      EnrollmentRepository.java
+        │                  │      StudentRepository.java
+        │                  │
+        │                  └─service
+        │                          EnrollmentService.java
+        │                          StudentService.java
+        │
+        └─resources
+            │  application-docker.yml
+            │  application.yml
+            │
+            ├─db
+            │      data.sql
+            │      schema.sql
+            │
+            ├─static
+            └─templates
+      
 
-本系统模拟了高校的**选课业务逻辑**，实现了学生管理、课程管理与选课管理三大模块。  
-采用 Spring Boot 架构，以 **RESTful API** 的形式提供统一接口，支持标准 JSON 格式输入输出。  
-
-系统数据通过MySQL数据库进行存储，实现数据持久化。
-
-# 二、系统架构设计
-
-java/com.zjgsu.hx.schoolcoursesimple
- ├── controller/         # 控制层：处理 HTTP 请求与响应
- │   ├── StudentController.java
- │   ├── CourseController.java
- │   ├── EnrollmentController.java
- |   └── HealthController.java
- ├── service/            # 业务逻辑层：实现核心功能与校验
- │   ├── StudentService.java
- │   ├── CourseService.java
- │   └── EnrollmentService.java
- ├── repository/         # 数据访问层：使用 Map 模拟存储
- │   ├── StudentRepository.java
- │   ├── CourseRepository.java
- │   └── EnrollmentRepository.java
- ├── model/              # 实体类：学生、课程、选课信息
- │   ├── Student.java
- │   ├── Course.java
- │   ├── Instructor.java
- │   ├── ScheduleSlot.java
- │   ├── Status.java
- │   └── Enrollment.java
- ├── exception/          # 异常类与全局异常处理
- │   ├── GlobalExceptionHandler.java
- │   ├── ResourceNotFoundException.java
- │   └── BusinessException.java
- ├── common/
- │   └── ApiResponse.java   # 统一响应体
- └── SchollcoursesimpleApplication.java
-resources
- ├── db/         # 控制层：处理 HTTP 请求与响应
- │   ├── schema.sql      # 数据库建表语句
- |   └── data.sql        # 初始化数据
- └── application.yml 
-
-# 三、功能设计
-
-| 模块     | 功能说明                                                   |
-| -------- | ---------------------------------------------------------- |
-| 学生管理 | 新增、修改、删除、查询学生信息；删除前检查是否存在选课记录 |
-| 课程管理 | 新增、修改、删除、查询课程信息；删除前检查是否存在选课记录 |
-| 选课管理 | 学生选课、退课、查询选课记录；检查容量上限与重复选课       |
-| 异常处理 | 统一异常返回机制；邮箱格式验证；容量、重复、缺失校验       |
-
-# 四、数据库设计
-表结构概览
-- Student
-| id | student_id | name | major | grade | email | created_at |
-- Course
-| id | course_id | title | capacity | enrolled | instructor_id | name | email | day_of_week | start_time | end_time | expected_attendance | created_at |
-- Enrollment
-| id | student_id | course_id | status | created_at |
+# 六、构建和运行步骤
+在项目根目录下，运行```docker compose build```构建应用
+然后运行```docker compose up```运行
+通过curl或者在浏览器里面输入http://hocalhost:8081/访问
 
 # 五、接口说明（RESTful Api）
+详细接口信息见[API接口文档.md]
 ## 系统结构
 ### Controller层
 接收 HTTP 请求、调用 Service 层、返回统一响应
@@ -141,55 +239,4 @@ resources
   "timestamp": "2025-11-02T22:35:08.365"
 }
 ```
-
-# 六、异常处理机制
-
-系统通过 `GlobalExceptionHandler` 统一捕获异常并以 `ApiResponse` 格式返回。
-
-| 异常类型                    | 返回码 | 示例说明                       |
-| --------------------------- | ------ | ------------------------------ |
-| `ResourceNotFoundException` | 404    | 学生或课程不存在               |
-| `IllegalArgumentException`  | 400    | 参数错误，如邮箱格式           |
-| `ResourceConflictException` | 409    | 业务冲突，如容量已满、重复选课 |
-| 其他未捕获异常              | 500    | 系统内部错误                   |
-
-返回示例：
-
-```
-{
-  "code": 409,
-  "message": "选课失败：课程容量已满",
-  "data": null,
-  "timestamp": "2025-10-25T22:50:23.241"
-}
-```
-
-# 七、运行环境与配置
-
-| 项目        | 版本             |
-| ----------- | ---------------- |
-| JDK         | 17+              |
-| Spring Boot | 3.x              |
-| MySQL      | 8.0              |
-| 构建工具    | Maven            |
-| 测试工具    | Postman / Apifox |
-| 端口号      | 8080             |
-
-## 启动方式
-```bash
-mvn spring-boot:run
-```
-启动后访问：
-
-```bash
-http://localhost:8080
-```
-
-或者直接在IntelliJ IDEA中启动项目
-
-## 数据初始化
-- 启动应用，自动生成数据库表结构，或运行src/main/resources/db/schema.sql生成表结构
-- 运行src/main/resources/db/data.sql插入初始化数据
-
-
 
