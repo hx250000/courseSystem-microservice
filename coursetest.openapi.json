@@ -1,0 +1,1191 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "默认模块",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/api/courses": {
+      "get": {
+        "summary": "getAllCourses",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCourse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "id": "",
+                      "courseId": "",
+                      "title": "",
+                      "instructor": {
+                        "id": "",
+                        "instructorId": "",
+                        "name": "",
+                        "email": "",
+                        "createAt": ""
+                      },
+                      "scheduleSlot": {
+                        "id": "",
+                        "dayOfWeek": "",
+                        "startTime": "",
+                        "endTime": "",
+                        "expectedAttendance": 0,
+                        "createAt": ""
+                      },
+                      "capacity": 0,
+                      "enrolled": 0,
+                      "createdAt": ""
+                    }
+                  ],
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "createCourse",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Course",
+                "description": ""
+              },
+              "example": {
+                "id": "27",
+                "courseId": "1",
+                "title": "计算机组成原理",
+                "instructor": {
+                  "instructorId": "72",
+                  "name": "枚梓涵",
+                  "email": "mzitue_tqj10@qq.com"
+                },
+                "scheduleSlot": {
+                  "dayOfWeek": "2026-06-02",
+                  "startTime": "2026-08-22 16:41:44",
+                  "endTime": "2025-03-14 22:00:09",
+                  "expectedAttendance": 17
+                },
+                "capacity": 14
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCourse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "courseId": "",
+                    "title": "",
+                    "instructor": {
+                      "id": "",
+                      "instructorId": "",
+                      "name": "",
+                      "email": "",
+                      "createAt": ""
+                    },
+                    "scheduleSlot": {
+                      "id": "",
+                      "dayOfWeek": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "expectedAttendance": 0,
+                      "createAt": ""
+                    },
+                    "capacity": 0,
+                    "enrolled": 0,
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/courses/{id}": {
+      "get": {
+        "summary": "getCourseById",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "27",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCourse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "courseId": "",
+                    "title": "",
+                    "instructor": {
+                      "id": "",
+                      "instructorId": "",
+                      "name": "",
+                      "email": "",
+                      "createAt": ""
+                    },
+                    "scheduleSlot": {
+                      "id": "",
+                      "dayOfWeek": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "expectedAttendance": 0,
+                      "createAt": ""
+                    },
+                    "capacity": 0,
+                    "enrolled": 0,
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "updateCourse",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "73",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "course",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "{            \"id\": \"73\",            \"courseId\": \"13\",            \"title\": \"Java程序设计\",            \"instructor\": {                \"id\": \"0c4f4557-b67f-4370-aec3-adf54bb5c0b5\",                \"instructorId\": \"58\",                \"name\": \"扬丽芬\",                \"email\": \"fozmy2_sf31@outlook.com\",                \"createAt\": \"2025-10-26T21:06:08.8033612\"            },            \"scheduleSlot\": {                \"id\": \"8fd315de-346e-4f3b-a5e9-7a69ecdd046d\",                \"dayOfWeek\": \"Tue\",                \"startTime\": \"2025-06-21 07:05:02\",                \"endTime\": \"2026-08-27 21:28:55\",                \"expectedAttendance\": 50,                \"createAt\": \"2025-10-26T21:06:08.8033612\"            },            \"capacity\": 97,            \"enrolled\": 0,            \"createdAt\": \"2025-10-26T21:06:08.8023603\"        }",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Course",
+                "description": ""
+              },
+              "example": {
+                "id": "79",
+                "courseId": "100",
+                "title": "但是附属浴盆加上",
+                "instructor": {
+                  "id": "2",
+                  "instructorId": "27",
+                  "name": "拉阳",
+                  "email": "ssxtbf.ul413@hotmail.com",
+                  "createAt": "1972-09-05 11:16:53"
+                },
+                "scheduleSlot": {
+                  "id": "76",
+                  "dayOfWeek": "2025-10-16",
+                  "startTime": "2025-07-29 17:49:18",
+                  "endTime": "2026-09-17 23:53:06",
+                  "expectedAttendance": 57,
+                  "createAt": "1994-07-30 21:49:36"
+                },
+                "capacity": 33,
+                "enrolled": 77,
+                "createdAt": "2022-10-12 13:22:37"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCourse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "courseId": "",
+                    "title": "",
+                    "instructor": {
+                      "id": "",
+                      "instructorId": "",
+                      "name": "",
+                      "email": "",
+                      "createAt": ""
+                    },
+                    "scheduleSlot": {
+                      "id": "",
+                      "dayOfWeek": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "expectedAttendance": 0,
+                      "createAt": ""
+                    },
+                    "capacity": 0,
+                    "enrolled": 0,
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "deleteCourse",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "27",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCourse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "courseId": "",
+                    "title": "",
+                    "instructor": {
+                      "id": "",
+                      "instructorId": "",
+                      "name": "",
+                      "email": "",
+                      "createAt": ""
+                    },
+                    "scheduleSlot": {
+                      "id": "",
+                      "dayOfWeek": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "expectedAttendance": 0,
+                      "createAt": ""
+                    },
+                    "capacity": 0,
+                    "enrolled": 0,
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/students": {
+      "get": {
+        "summary": "getAllStudents",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListStudent"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "id": "",
+                      "studentId": "",
+                      "name": "",
+                      "major": "",
+                      "grade": 0,
+                      "email": "",
+                      "createAt": ""
+                    }
+                  ],
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "createStudent",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Student",
+                "description": ""
+              },
+              "example": {
+                "studentId": "45",
+                "name": "姚静怡",
+                "major": "exercitation est dolore cupidatat",
+                "grade": 19,
+                "email": "fvpts4_hkc23@yahoo.cn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStudent"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "name": "",
+                    "major": "",
+                    "grade": 0,
+                    "email": "",
+                    "createAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/students/{id}": {
+      "get": {
+        "summary": "getStudentById",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "961ac0de-298b-4d60-96a8-dc2f0cf95610",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStudent"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "name": "",
+                    "major": "",
+                    "grade": 0,
+                    "email": "",
+                    "createAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "updateStudent",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3b9dc8b8-a75a-4c3a-9a75-992724b2f979",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "student",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "{            \"id\": \"3b9dc8b8-a75a-4c3a-9a75-992724b2f979\",            \"studentId\": \"45\",            \"name\": \"姚静怡\",            \"major\": \"computer science\",            \"grade\": 19,            \"email\": \"aaa@bbb.com\",            \"createAt\": \"2025-10-26T20:45:48.5810944\"}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Student",
+                "description": ""
+              },
+              "example": {
+                "id": "3b9dc8b8-a75a-4c3a-9a75-992724b2f979",
+                "studentId": "45",
+                "name": "姚静怡",
+                "major": "computer science",
+                "grade": 19,
+                "email": "aaa@bbb.com",
+                "createAt": "2025-10-26T20:45:48.5810944"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStudent"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "name": "",
+                    "major": "",
+                    "grade": 0,
+                    "email": "",
+                    "createAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "deleteStudent",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3b9dc8b8-a75a-4c3a-9a75-992724b2f979",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseStudent"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "name": "",
+                    "major": "",
+                    "grade": 0,
+                    "email": "",
+                    "createAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/enrollments": {
+      "get": {
+        "summary": "getAllEnrollments",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "id": "",
+                      "studentId": "",
+                      "courseId": "",
+                      "createdAt": ""
+                    }
+                  ],
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "createEnrollment",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "14",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "courseId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "62ae75eb-d5c6-4e08-8ae0-a8374d3e00aa",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "courseId": "",
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "deleteEnrollment",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "courseId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "courseId": "",
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/enrollments/student/{studentId}": {
+      "get": {
+        "summary": "getEnrollmentsByStudentId",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "id": "",
+                      "studentId": "",
+                      "courseId": "",
+                      "createdAt": ""
+                    }
+                  ],
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/enrollments/course/{courseId}": {
+      "get": {
+        "summary": "getEnrollmentsByCourseId",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "id": "",
+                      "studentId": "",
+                      "courseId": "",
+                      "createdAt": ""
+                    }
+                  ],
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/enrollments/{id}": {
+      "delete": {
+        "summary": "deleteEnrollmentById",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseEnrollment"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "id": "",
+                    "studentId": "",
+                    "courseId": "",
+                    "createdAt": ""
+                  },
+                  "timestamp": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Instructor": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "uuid"
+          },
+          "instructorId": {
+            "type": "string",
+            "description": "教师id"
+          },
+          "name": {
+            "type": "string",
+            "description": ""
+          },
+          "email": {
+            "type": "string",
+            "description": ""
+          },
+          "createAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ScheduleSlot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "dayOfWeek": {
+            "type": "string",
+            "description": "MONDAY, TUESDAY 等"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "\"08:00\""
+          },
+          "endTime": {
+            "type": "string",
+            "description": "\"10:00\""
+          },
+          "expectedAttendance": {
+            "type": "integer",
+            "description": ""
+          },
+          "createAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "Course": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "uuid"
+          },
+          "courseId": {
+            "type": "string",
+            "description": "课程id"
+          },
+          "title": {
+            "type": "string",
+            "description": "课程名"
+          },
+          "instructor": {
+            "$ref": "#/components/schemas/Instructor",
+            "description": ""
+          },
+          "scheduleSlot": {
+            "$ref": "#/components/schemas/ScheduleSlot",
+            "description": ""
+          },
+          "capacity": {
+            "type": "integer",
+            "description": ""
+          },
+          "enrolled": {
+            "type": "integer",
+            "description": ""
+          },
+          "createdAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseListCourse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Course",
+              "description": "com.zjgsu.hx.schoolcoursesimple.model.Course"
+            },
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseCourse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/Course",
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "Student": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "studentId": {
+            "type": "string",
+            "description": ""
+          },
+          "name": {
+            "type": "string",
+            "description": ""
+          },
+          "major": {
+            "type": "string",
+            "description": ""
+          },
+          "grade": {
+            "type": "integer",
+            "description": ""
+          },
+          "email": {
+            "type": "string",
+            "description": ""
+          },
+          "createAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseListStudent": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Student",
+              "description": "com.zjgsu.hx.schoolcoursesimple.model.Student"
+            },
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseStudent": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/Student",
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "Enrollment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": ""
+          },
+          "studentId": {
+            "type": "string",
+            "description": ""
+          },
+          "courseId": {
+            "type": "string",
+            "description": ""
+          },
+          "createdAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseListEnrollment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Enrollment",
+              "description": "com.zjgsu.hx.schoolcoursesimple.model.Enrollment"
+            },
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApiResponseEnrollment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/Enrollment",
+            "description": ""
+          },
+          "timestamp": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}
