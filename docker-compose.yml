@@ -4,7 +4,7 @@ services:
     build:
       context: ./catalog-service
       dockerfile: Dockerfile
-    container_name: catalog-service
+    container_name: catalog-service-hw6
     ports:
       - "8081:8081"
     environment:
@@ -23,7 +23,7 @@ services:
     build:
       context: ./enrollment-service
       dockerfile: Dockerfile
-    container_name: enrollment-service
+    container_name: enrollment-service-hw6
     ports:
       - "8082:8082"
     environment:
@@ -42,7 +42,7 @@ services:
 
   catalog-db:
     image: mysql:8
-    container_name: catalog-db
+    container_name: catalog-db-hw6
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: catalog_db
@@ -63,7 +63,7 @@ services:
 
   enrollment-db:
     image: mysql:8
-    container_name: enrollment-db
+    container_name: enrollment-db-hw6
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: enrollment_db
