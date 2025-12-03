@@ -66,6 +66,7 @@ public class CourseService {
         existing.setCourseId(course.getCourseId());
         existing.setTitle(course.getTitle());
         existing.setInstructor(course.getInstructor());
+        existing.setEnrolled(course.getEnrolled());
         existing.setCapacity(course.getCapacity());
 
         //existing.setScheduleSlot(course.getScheduleSlot());
@@ -147,5 +148,31 @@ public class CourseService {
         if (course.getCapacity() <= 0) {
             throw new IllegalArgumentException("课程容量必须大于 0！");
         }
+    }
+
+    @Transactional
+    public Course increaseEnrolledCount(String courseId){
+        Course course=courseRepository.findByCourseId(courseId).
+                orElseThrow(()->new ResourceNotFoundException("课程不存在！"));
+        int count=course.getEnrolled();
+        int newCount=count+1;
+        if(newCount>course.getCapacity()){
+            throw new ResourceConflictException("课程人数已满！");
+        }
+        course.setEnrolled(newCount);
+        return courseRepository.save(course);
+    }
+
+    @Transactional
+    public Course decreaseEnrolledCount(String courseId){
+        Course course=courseRepository.findByCourseId(courseId).
+                orElseThrow(()->new ResourceNotFoundException("课程不存在！"));
+        int count=course.getEnrolled();
+        int newCount=count-1;
+        if(newCount<0){
+            throw new ResourceConflictException("课程人数已空！");
+        }
+        course.setEnrolled(newCount);
+        return courseRepository.save(course);
     }
 }

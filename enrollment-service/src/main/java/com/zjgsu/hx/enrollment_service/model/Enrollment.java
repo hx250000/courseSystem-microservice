@@ -21,8 +21,6 @@ public class Enrollment {
     @Column(name = "student_id", nullable = false)
     private String studentId;//关联学生
 
-
-
     @Column(name = "course_id", nullable = false)
     private String courseId;
 
@@ -50,7 +48,7 @@ public class Enrollment {
     }
 
     public String getId() { return id; }
-    public void setId() { this.id = UUID.randomUUID().toString(); }
+    public void setId(String id) { this.id = id; }
     /*public String getStudentId() { return studentId; }
     public void setStudentId(String studentId) { this.studentId = studentId; }
     public String getCourseId() { return courseId; }
