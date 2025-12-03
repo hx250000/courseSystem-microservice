@@ -18,11 +18,10 @@ import java.util.Map;
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final RestTemplate restTemplate;
-    @Value("${catalog-service.url}") // 引用 application.yml 中的配置
-    private String catalogServiceUrl;
-    @Value("${user-service.url}")
-    private String userServiceUrl;
-
+    //@Value("${catalog-service.url}") // 引用 application.yml 中的配置
+    private final String catalogServiceUrl="http://catalog-service";
+    //@Value("${user-service.url}")
+    private final String userServiceUrl="http://user-service";
 
     public EnrollmentService(EnrollmentRepository enrollmentRepository,
                              RestTemplate restTemplate) {
@@ -150,36 +149,6 @@ public class EnrollmentService {
         return enrollment;
     }
 
-    /*private int getEnrolledCount(String courseId) {
-        String url = catalogServiceUrl + "/api/courses/" + courseId;
-        try {
-            // 远程获取课程信息
-            Map<String, Object> courseResponse = restTemplate.getForObject(url, Map.class);
-
-            Map<String, Object> courseData = (Map<String, Object>) courseResponse.get("data");
-
-            Integer enrolled = (Integer) courseData.get("enrolled");
-            return enrolled != null ? enrolled : 0;
-
-        } catch (HttpClientErrorException.NotFound e) {
-            // 课程不存在
-            throw new ResourceNotFoundException("课程不存在："+ courseId);
-        } catch (Exception e) {
-            // 远程调用失败，记录日志
-            System.err.println("Failed to fetch course enrolled count for " + courseId + ": " + e.getMessage());
-            return 0; // 无法获取人数，返回 0
-        }
-    }
-    private void updateCourseEnrolledCount(String courseId, int newCount) {
-        String url = catalogServiceUrl + "/api/courses/" + courseId;
-        Map<String,Object> resp = restTemplate.getForObject(url, Map.class);
-        Map<String,Object> courseData = (Map<String,Object>) resp.get("data");
-
-        courseData.put("enrolled", newCount);
-
-        restTemplate.put(url, courseData);
-
-    }*/
     private void increaseCourseEnrolledCount(String courseId){
         String url=catalogServiceUrl+"/api/courses/"+courseId+"/increment";
         restTemplate.put(url, null);

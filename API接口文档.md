@@ -11,7 +11,7 @@
 | 服务名称 | 端口 | 基础路径 | 数据库 |
 |---------|------|---------|--------|
 | catalog-service | 8081 | /api/courses | catalog_db |
-| enrollment-service | 8082 | /api/enrollments, /api/students | enrollment_db |
+| enrollment-service | 8083 | /api/enrollments | enrollment_db |
 
 ## 统一响应格式
 
@@ -418,20 +418,23 @@ Content-Type: application/json
 
 ### 2.1 学生管理接口
 
+#### 说明
+学生信息存储在 user-service 中。enrollment-service **不直接提供**学生管理接口，而是通过远程调用 user-service 验证学生是否存在。以下列出的学生管理接口是 **user-service 提供的 API**，enrollment-service 在创建/查询选课记录时会调用这些接口进行学生验证。
+
 #### 基础路径
 ```
-http://localhost:8082/api/students
+http://localhost:8082/api/users/students
 ```
 
 ---
 
 #### 2.1.1 获取所有学生
 
-**接口描述**：获取系统中的所有学生列表
+**接口描述**：获取系统中的所有学生列表（实际由 user-service 提供）
 
 **请求方式**：`GET`
 
-**请求路径**：`/api/students`
+**请求路径**：`/api/users/students`
 
 **请求参数**：无
 
@@ -459,11 +462,11 @@ http://localhost:8082/api/students
 
 #### 2.1.2 根据ID获取学生
 
-**接口描述**：根据学生ID获取指定学生的详细信息
+**接口描述**：根据学生ID获取指定学生的详细信息（实际由 user-service 提供）
 
 **请求方式**：`GET`
 
-**请求路径**：`/api/students/{id}`
+**请求路径**：`/api/users/students/{id}`
 
 **路径参数**：
 
@@ -503,11 +506,11 @@ http://localhost:8082/api/students
 
 #### 2.1.3 创建学生
 
-**接口描述**：创建新的学生信息
+**接口描述**：创建新的学生信息（实际由 user-service 提供）
 
 **请求方式**：`POST`
 
-**请求路径**：`/api/students`
+**请求路径**：`/api/users/students`
 
 **请求头**：
 ```
@@ -597,11 +600,11 @@ Content-Type: application/json
 
 #### 2.1.4 更新学生
 
-**接口描述**：更新指定学生的信息
+**接口描述**：更新指定学生的信息（实际由 user-service 提供）
 
 **请求方式**：`PUT`
 
-**请求路径**：`/api/students/{id}`
+**请求路径**：`/api/users/students/{id}`
 
 **路径参数**：
 
@@ -657,11 +660,11 @@ Content-Type: application/json
 
 #### 2.1.5 删除学生
 
-**接口描述**：根据ID删除指定学生
+**接口描述**：根据ID删除指定学生（实际由 user-service 提供）
 
 **请求方式**：`DELETE`
 
-**请求路径**：`/api/students/{id}`
+**请求路径**：`/api/users/students/{id}`
 
 **路径参数**：
 
@@ -703,7 +706,7 @@ Content-Type: application/json
 
 #### 基础路径
 ```
-http://localhost:8082/api/enrollments
+http://localhost:8083/api/enrollments
 ```
 
 ---
@@ -876,31 +879,31 @@ POST /api/enrollments?studentId=S001&courseId=CS101
 }
 ```
 
-**错误响应**（重复选课）：
+**错误响应**（已选该课程且状态为 ACTIVE）：
 ```json
 {
   "code": 409,
-  "message": "Already enrolled in this course",
+  "message": "该学生已选择该课程！",
   "data": null,
   "timestamp": "2024-01-01T12:00:00"
 }
 ```
 
-**错误响应**（课程人数已满）：
-```json
-{
-  "code": 409,
-  "message": "课程人数已满！",
-  "data": null,
-  "timestamp": "2024-01-01T12:00:00"
-}
+**注意**：如果学生曾选过该课程但已退课（status=DROPPED），系统会将其状态恢复为 ACTIVE，而不是抛出错误。
+
+**业务说明**：
+- 系统会验证学生是否存在（通过调用 user-service）
+- 系统会验证课程是否存在（通过调用 catalog-service）
+- 如果学生已选该课程且状态为 ACTIVE，返回 409 冲突错误
+- 如果学生已选该课程但状态为 DROPPED，系统会恢复选课记录为 ACTIVE 状态
+- 选课成功后，系统会调用 catalog-service 的增量接口（`/api/courses/{courseId}/increment`）来更新课程已选人数
 ```
 
 ---
 
-#### 2.2.5 删除选课记录（通过学生ID和课程ID）
+#### 2.2.5 丢弃选课记录（通过学生ID和课程ID）
 
-**接口描述**：学生退课，删除指定学生和课程的选课记录
+**接口描述**：学生退课，将指定学生和课程的选课记录标记为 DROPPED 状态，并自动更新课程已选人数
 
 **请求方式**：`DELETE`
 
@@ -927,7 +930,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
     "id": "uuid",
     "studentId": "S001",
     "courseId": "CS101",
-    "status": "ACTIVE",
+    "status": "DROPPED",
     "createdAt": "2024-01-01T10:00:00"
   },
   "timestamp": "2024-01-01T12:00:00"
@@ -954,21 +957,11 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 }
 ```
 
-**错误响应**（课程人数已空）：
-```json
-{
-  "code": 409,
-  "message": "课程人数已空！",
-  "data": null,
-  "timestamp": "2024-01-01T12:00:00"
-}
-```
-
 ---
 
-#### 2.2.6 删除选课记录（通过ID）
+#### 2.2.6 丢弃选课记录（通过ID）
 
-**接口描述**：根据选课记录ID删除选课记录
+**接口描述**：根据选课记录ID丢弃选课记录（标记为DROPPED），并自动更新课程已选人数
 
 **请求方式**：`DELETE`
 
@@ -989,7 +982,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
     "id": "uuid",
     "studentId": "S001",
     "courseId": "CS101",
-    "status": "ACTIVE",
+    "status": "DROPPED",
     "createdAt": "2024-01-01T10:00:00"
   },
   "timestamp": "2024-01-01T12:00:00"
@@ -1001,26 +994,6 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 {
   "code": 404,
   "message": "选课记录不存在!",
-  "data": null,
-  "timestamp": "2024-01-01T12:00:00"
-}
-```
-
-**错误响应**（课程不存在）：
-```json
-{
-  "code": 404,
-  "message": "课程不存在：CS101",
-  "data": null,
-  "timestamp": "2024-01-01T12:00:00"
-}
-```
-
-**错误响应**（课程人数已空）：
-```json
-{
-  "code": 409,
-  "message": "课程人数已空！",
   "data": null,
   "timestamp": "2024-01-01T12:00:00"
 }
@@ -1150,9 +1123,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 | 学生不存在 | 404 | "学生不存在！"、"学生不存在" |
 | 课程不存在 | 404 | "课程不存在：{courseId}" |
 | 选课记录不存在 | 404 | "选课记录不存在！"、"选课记录不存在!" |
-| 课程人数已满 | 409 | "课程人数已满！" |
-| 重复选课 | 409 | "Already enrolled in this course" |
-| 课程人数已空 | 409 | "课程人数已空！" |
+| 已选该课程（ACTIVE） | 409 | "该学生已选择该课程！" |
 
 ---
 
@@ -1189,7 +1160,7 @@ curl -X POST http://localhost:8081/api/courses \
 
 #### 创建学生
 ```bash
-curl -X POST http://localhost:8082/api/students \
+curl -X POST http://localhost:8082/api/users/students \
   -H "Content-Type: application/json" \
   -d '{
     "studentId": "S001",
@@ -1202,12 +1173,12 @@ curl -X POST http://localhost:8082/api/students \
 
 #### 选课
 ```bash
-curl -X POST "http://localhost:8082/api/enrollments?studentId=S001&courseId=CS101"
+curl -X POST "http://localhost:8083/api/enrollments?studentId=S001&courseId=CS101"
 ```
 
 #### 退课
 ```bash
-curl -X DELETE "http://localhost:8082/api/enrollments?studentId=S001&courseId=CS101"
+curl -X DELETE "http://localhost:8083/api/enrollments?studentId=S001&courseId=CS101"
 ```
 
 ---
@@ -1216,12 +1187,14 @@ curl -X DELETE "http://localhost:8082/api/enrollments?studentId=S001&courseId=CS
 
 1. **服务端口**：
    - catalog-service 运行在 8081 端口
-   - enrollment-service 运行在 8082 端口
+   - enrollment-service 运行在 8083 端口
+   - user-service 运行在 8082 端口
 
 2. **数据一致性**：
    - 选课操作会检查课程是否存在（通过调用 catalog-service）
-   - 选课操作会检查学生是否存在
-   - 选课操作会检查课程是否已满
+   - 选课操作会检查学生是否存在（通过调用 user-service）
+   - 选课操作会自动更新课程已选人数（通调用 catalog-service 的 increment/decrement 接口）
+   - 课程容量检查当前已禁用，其他服务可以根据业务需求处理平程需求
 
 3. **唯一性约束**：
    - courseId 必须唯一
@@ -1231,8 +1204,8 @@ curl -X DELETE "http://localhost:8082/api/enrollments?studentId=S001&courseId=CS
 4. **自动字段**：
    - id（UUID）：自动生成
    - createdAt/createAt：自动设置为当前时间
-   - enrolled：选课时自动递增，退课时自动递减
-   - status：创建选课记录时自动设置为 ACTIVE
+   - enrolled：选课成功后调用 increment 接口递增，退课后调用 decrement 接口递减
+   - status：创建选课记录时自动设置为 ACTIVE，退课時修改为 DROPPED
 
 5. **删除操作**：
    - 删除课程使用 UUID（id），不是 courseId

@@ -8,6 +8,8 @@ import com.zjgsu.hx.user_service.repository.StudentRepository;
 import com.zjgsu.hx.user_service.repository.TeacherRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,14 +20,14 @@ import java.util.Map;
 public class UserService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
-
+    private final DiscoveryClient discoveryClient;
     private final RestTemplate restTemplate;
-    @Value("${enrollment-service.url}") // 引用 application.yml 中的配置
-    private String enrollmentServiceUrl;
+    private final String enrollmentServiceUrl="http://enrollment-service";
 
-    public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, RestTemplate restTemplate) {
+    public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, DiscoveryClient discoveryClient, RestTemplate restTemplate) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
+        this.discoveryClient = discoveryClient;
         this.restTemplate = restTemplate;
     }
 
@@ -131,6 +133,7 @@ public class UserService {
         existing.setDepartment(teacher.getDepartment());
         return teacherRepository.save(existing);
     }
+
     @Transactional
     public Student deleteStudentById(String id) {
         Student student = studentRepository.findById(id)
@@ -138,6 +141,7 @@ public class UserService {
         String studentId = student.getStudentId();
 
         String url = enrollmentServiceUrl + "/api/student/" + studentId;
+
         Map<String, Object> studentEnrolledResponse = restTemplate.getForObject(url, Map.class);
 
         Map<String, Object> studentEnrolledData = (Map<String, Object>) studentEnrolledResponse.get("data");
