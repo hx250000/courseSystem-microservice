@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
     container_name: enrollment-service-hw6
     ports:
-      - "8082:8082"
+      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://enrollment-db:3306/enrollment_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
@@ -55,6 +55,8 @@ services:
       enrollment-db:
         condition: service_healthy
       catalog-service:
+        condition: service_started
+      user-service:
         condition: service_started
     networks:
       - coursehub-network
@@ -80,6 +82,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   enrollment-db:
     image: mysql:8
@@ -101,6 +104,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   user-db:
     image: mysql:8
@@ -122,6 +126,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
 networks:
   coursehub-network:

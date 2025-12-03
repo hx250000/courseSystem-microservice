@@ -19,10 +19,10 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
 catalog-service:
-  url: http://localhost:8081
+  url: http://catalog-service:8081
 
 enrollment-service:
-  url: http://localhost:8083
+  url: http://enrollment-service:8083
 
 logging:
   level:

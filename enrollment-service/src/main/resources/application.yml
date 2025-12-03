@@ -20,10 +20,10 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
 catalog-service:
-  url: http://localhost:8081
+  url: http://catalog-service:8081
 
 user-service:
-  url: http://localhost:8082
+  url: http://user-service:8082
 
 logging:
   level:
