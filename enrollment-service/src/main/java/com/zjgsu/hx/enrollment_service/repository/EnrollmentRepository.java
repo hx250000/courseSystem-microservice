@@ -1,7 +1,6 @@
 package com.zjgsu.hx.enrollment_service.repository;
 
 import com.zjgsu.hx.enrollment_service.model.Enrollment;
-import com.zjgsu.hx.enrollment_service.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

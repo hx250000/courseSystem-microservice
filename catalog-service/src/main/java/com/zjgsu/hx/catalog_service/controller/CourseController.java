@@ -40,4 +40,14 @@ public class CourseController {
     public ApiResponse<Course> deleteCourse(@PathVariable String id) {
         return ApiResponse.success(courseService.deleteById(id));
     }
+
+    @PutMapping("/{courseId}/increment")
+    public ApiResponse<Course> increamentCourse(@PathVariable String courseId) {
+        return ApiResponse.success(courseService.increaseEnrolledCount(courseId));
+    }
+
+    @PutMapping("/{courseId}/decrement")
+    public ApiResponse<Course> decreaseCourse(@PathVariable String courseId) {
+        return ApiResponse.success(courseService.decreaseEnrolledCount(courseId));
+    }
 }

@@ -1,12 +1,11 @@
-# enrollment-service
 server:
-  port: 8083  # 项目运行端口
+  port: 8082  # 项目运行端口
 
 spring:
   application:
-    name: enrollment-service
+    name: user-service
   datasource:
-    url: jdbc:mysql://localhost:3306/enrollment_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/user_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 123456
   jpa:
@@ -22,11 +21,11 @@ spring:
 catalog-service:
   url: http://localhost:8081
 
-user-service:
-  url: http://localhost:8082
+enrollment-service:
+  url: http://localhost:8083
 
 logging:
   level:
-    com.zjgsu.hx.enrollment_service: INFO
+    com.zjgsu.hx.user_service: INFO
     org.springframework.web: INFO
 
