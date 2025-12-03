@@ -9,7 +9,7 @@ echo -e "\n1. 测试课程目录服务 - 创建课程"
     "courseId": "CS101",
     "title": "计算机科学导论",
     "instructor": {
-      "id": "T001",
+      "instructorId": "T001",
       "name": "张教授",
       "email": "zhang@example.edu.cn"
     },
