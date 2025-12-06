@@ -7,6 +7,7 @@ import com.zjgsu.hx.catalog_service.model.Course;
 import com.zjgsu.hx.catalog_service.model.ScheduleSlot;
 import com.zjgsu.hx.catalog_service.repository.CourseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,11 +21,11 @@ public class CourseService {
     private final CourseRepository courseRepository;
     //@Value("${enrollment-service.url}")
     private final String enrollmentServiceUrl="http://enrollment-service";
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    public CourseService(CourseRepository courseRepository, RestTemplate restTemplate) {
+    public CourseService(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
-        this.restTemplate = restTemplate;
     }
     public List<Course> findAll() {
         return courseRepository.findAll();

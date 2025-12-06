@@ -7,6 +7,7 @@ import com.zjgsu.hx.user_service.model.Teacher;
 import com.zjgsu.hx.user_service.repository.StudentRepository;
 import com.zjgsu.hx.user_service.repository.TeacherRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -21,14 +22,15 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final DiscoveryClient discoveryClient;
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
     private final String enrollmentServiceUrl="http://enrollment-service";
 
-    public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, DiscoveryClient discoveryClient, RestTemplate restTemplate) {
+    public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, DiscoveryClient discoveryClient) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.discoveryClient = discoveryClient;
-        this.restTemplate = restTemplate;
+        //this.restTemplate = restTemplate;
     }
 
     public List<Teacher> findAllTeachers() {return teacherRepository.findAll();}

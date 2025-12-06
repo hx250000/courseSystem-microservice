@@ -22,12 +22,15 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
+        server-addr: localhost:8848
         namespace: dev
         group: COURSEHUB_GROUP
         ephemeral: true
         heart-beat-interval: 5000
         heart-beat-timeout: 15000
+        username: nacos
+        password: nacos
+        enabled: true
 
 management:
   endpoints:

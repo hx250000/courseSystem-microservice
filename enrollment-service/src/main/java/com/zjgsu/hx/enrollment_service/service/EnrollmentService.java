@@ -6,6 +6,7 @@ import com.zjgsu.hx.enrollment_service.model.Enrollment;
 import com.zjgsu.hx.enrollment_service.model.Status;
 import com.zjgsu.hx.enrollment_service.repository.EnrollmentRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,16 +18,17 @@ import java.util.Map;
 @Service
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
     //@Value("${catalog-service.url}") // 引用 application.yml 中的配置
     private final String catalogServiceUrl="http://catalog-service";
     //@Value("${user-service.url}")
     private final String userServiceUrl="http://user-service";
 
-    public EnrollmentService(EnrollmentRepository enrollmentRepository,
-                             RestTemplate restTemplate) {
+    public EnrollmentService(EnrollmentRepository enrollmentRepository
+                             ) {
         this.enrollmentRepository = enrollmentRepository;
-        this.restTemplate = restTemplate;
+
 
     }
 
@@ -38,7 +40,7 @@ public class EnrollmentService {
      */
     @Transactional
     public Enrollment createEnrollment(String studentId, String courseId) {
-        
+        System.out.println(restTemplate.getClass());
         Map<?,?> student=getStudentByStudentId(studentId);
 
         // 2. 调用课程目录服务验证课程是否存在
@@ -49,17 +51,7 @@ public class EnrollmentService {
         } catch (HttpClientErrorException.NotFound e) {
             throw new ResourceNotFoundException("课程不存在："+ courseId);
         }
-        // 3. 从响应中提取课程信息
-        /*Map<String, Object> courseData = (Map<String, Object>)
-                courseResponse.get("data");
-        Integer capacity = (Integer) courseData.get("capacity");
-        Integer enrolled = (Integer) courseData.get("enrolled");
-        // 4. 检查课程容量
-        if (enrolled >= capacity) {
-            throw new ResourceConflictException("课程人数已满！");
-        }*/
-        // 5. 检查重复选课
-        // 6. 创建选课记录
+
         Enrollment enrollment;
         if (enrollmentRepository.existsByStudentIdAndCourseId(studentId,courseId
                 )) {
