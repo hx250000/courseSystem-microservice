@@ -4,6 +4,7 @@ import com.zjgsu.hx.enrollment_service.model.Enrollment;
 import com.zjgsu.hx.enrollment_service.service.EnrollmentService;
 import com.zjgsu.hx.enrollment_service.common.ApiResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -12,6 +13,9 @@ import java.util.List;
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
+
+    @Value("${server.port}")
+    private String port;
 
     public EnrollmentController(EnrollmentService enrollmentService) {
         this.enrollmentService = enrollmentService;
@@ -47,5 +51,11 @@ public class EnrollmentController {
     @DeleteMapping("/{id}")
     public ApiResponse<Enrollment> deleteEnrollmentById(@PathVariable String id) {
         return ApiResponse.success(enrollmentService.deleteById(id));
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "Enrollment Service Instance Port: " +
+                port;
     }
 }
