@@ -6,159 +6,185 @@
 基于版本：1.1.0（单体应用版）
 微服务架构说明：本系统模拟了高校的**选课业务逻辑**，实现了学生管理、课程管理与选课管理等模块，其中，将课程管理单独拆分、学生管理和选课管理单独拆分，形成两个微服务。  
 # 二、微服务架构图
-客户端
-  ↓
-  ├─→ catalog-service (8081) → catalog_db (3307)
-  │   └── 课程管理
-  │
-  └─→ enrollment-service (8082) → enrollment_db (3308)
-      ├── 学生管理
-      ├── 选课管理
-      └── HTTP调用 → catalog-service（验证课程）
+```
+                    ┌─────────────┐
+                    │   客户端     │
+                    └──────┬───────┘
+                           │
+                           │ HTTP
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+│ catalog-service│  │ user-service  │  │enrollment-service│
+│   (8081)       │  │   (8082)      │  │   (8083)         │
+│                │  │               │  │                  │
+│ 课程管理       │  │ 用户管理       │  │ 选课管理         │
+│                │  │ 学生管理       │  │                  │
+└───────┬───────┘  └───────┬───────┘  └───────┬──────────┘
+        │                  │                  │
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+│  catalog_db   │  │   user_db     │  │ enrollment_db │
+│   (3307)      │  │   (3309)      │  │   (3308)      │
+└───────────────┘  └───────────────┘  └───────────────┘
+        │                  │                  │
+        └──────────────────┼──────────────────┘
+                           │
+                           ▼
+                    ┌───────────────┐
+                    │     Nacos     │
+                    │   (8848)      │
+                    │ 服务注册与发现 │
+                    └───────────────┘
+```
 # 三、技术栈
- - Spring Boot 3.5.7
- - Java 25
- - MySQL 8.4
+ - Spring Boot 3.2.7
+ - Spring Cloud 2023.0.3
+ - Spring Cloud Alibaba 2023.0.1.0
+ - Nacos 3.1.0（服务注册与发现）
+ - Java 17
+ - MySQL 8
  - Docker & Docker Compose
  - RestTemplate（服务间通信）
+ - Spring Data JPA（数据持久化）
 # 四、环境要求
- - JDK 25+
+ - JDK 17+
  - Maven 3.8+
  - Docker 20.10+
  - Docker Compose 2.0+
 # 五、项目结构
-course-microservice
-C:.
-│  .dockerignore
-│  .gitattributes
-│  .gitignore
-│  coursetest.openapi.json
-│  docker-compose.yml
-│  Dockerfile
-│  HELP.md
-│  readme.md
-│  test-service.sh
+```
+course-microservice/
 │
-├─catalog-service
-│  │  .dockerignore
-│  │  .gitignore
-│  │  Dockerfile
-│  │  mvnw
-│  │  mvnw.cmd
-│  │  pom.xml
-│  │
-│  ├─.idea
-│  │      .gitignore
-│  │      ApifoxUploaderProjectSetting.xml
-│  │      compiler.xml
-│  │      encodings.xml
-│  │      jarRepositories.xml
-│  │      misc.xml
-│  │      uiDesigner.xml
-│  │      workspace.xml
-│  │
-│  └─src
-│    └─main
-│      ├─java
-│      │  └─com
-│      │      └─zjgsu
-│      │          └─hx
-│      │              └─catalog_service
-│      │                  │  catalog_serviceApplication.java
-│      │                  │
-│      │                  ├─common
-│      │                  │      ApiResponse.java
-│      │                  │
-│      │                  ├─controller
-│      │                  │      CourseController.java
-│      │                  │
-│      │                  ├─exception
-│      │                  │      GlobalExceptionHandler.java
-│      │                  │      ResourceConflictException.java
-│      │                  │      ResourceNotFoundException.java
-│      │                  │
-│      │                  ├─model
-│      │                  │      Course.java
-│      │                  │      Instructor.java
-│      │                  │      ScheduleSlot.java
-│      │                  │
-│      │                  ├─repository
-│      │                  │      CourseRepository.java
-│      │                  │
-│      │                  └─service
-│      │                          CourseService.java
-│      │
-│      └─resources
-│          │  application-docker.yml
-│          │  application.yml
-│          │
-│          ├─db
-│          │      data.sql
-│          │      schema.sql
-│          │
-│          ├─static
-│          └─templates
-│  
-└─enrollment-service
-    │  .dockerignore
-    │  .gitignore
-    │  Dockerfile
-    │  mvnw
-    │  mvnw.cmd
-    │  pom.xml
-    │
-    └─src
-      └─main
-        ├─java
-        │  └─com
-        │      └─zjgsu
-        │          └─hx
-        │              └─enrollment_service
-        │                  │  enrollment_serviceApplication.java
-        │                  │
-        │                  ├─common
-        │                  │      ApiResponse.java
-        │                  │
-        │                  ├─controller
-        │                  │      EnrollmentController.java
-        │                  │      StudentController.java
-        │                  │
-        │                  ├─exception
-        │                  │      GlobalExceptionHandler.java
-        │                  │      ResourceConflictException.java
-        │                  │      ResourceNotFoundException.java
-        │                  │
-        │                  ├─model
-        │                  │      Enrollment.java
-        │                  │      Status.java
-        │                  │      Student.java
-        │                  │
-        │                  ├─repository
-        │                  │      EnrollmentRepository.java
-        │                  │      StudentRepository.java
-        │                  │
-        │                  └─service
-        │                          EnrollmentService.java
-        │                          StudentService.java
-        │
-        └─resources
-            │  application-docker.yml
-            │  application.yml
-            │
-            ├─db
-            │      data.sql
-            │      schema.sql
-            │
-            ├─static
-            └─templates
-      
+├── catalog-service/              # 课程目录服务
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/zjgsu/hx/catalog_service/
+│   │       │       ├── catalog_serviceApplication.java
+│   │       │       ├── controller/        # 控制器层
+│   │       │       ├── service/           # 业务逻辑层
+│   │       │       ├── repository/        # 数据访问层
+│   │       │       ├── model/             # 数据模型
+│   │       │       ├── exception/         # 异常处理
+│   │       │       └── common/            # 公共类
+│   │       └── resources/
+│   │           ├── application.yml        # 配置文件
+│   │           └── db/                    # 数据库脚本
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── enrollment-service/            # 选课服务
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/zjgsu/hx/enrollment_service/
+│   │       │       ├── enrollment_serviceApplication.java
+│   │       │       ├── controller/
+│   │       │       ├── service/
+│   │       │       ├── repository/
+│   │       │       ├── model/
+│   │       │       ├── exception/
+│   │       │       └── common/
+│   │       └── resources/
+│   │           ├── application.yml
+│   │           └── db/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── user-service/                  # 用户服务
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/zjgsu/hx/user_service/
+│   │       │       ├── user_serviceApplication.java
+│   │       │       ├── controller/
+│   │       │       ├── service/
+│   │       │       ├── repository/
+│   │       │       ├── model/
+│   │       │       ├── exception/
+│   │       │       └── common/
+│   │       └── resources/
+│   │           ├── application.yml
+│   │           └── db/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── docker-compose.yml             # Docker Compose 配置
+├── API接口文档.md                  # API 接口文档
+└── readme.md                      # 项目说明文档
+```
 
 # 六、构建和运行步骤
-在项目根目录下，运行```docker compose build```构建应用
-然后运行```docker compose up```运行
-通过curl或者在浏览器里面输入http://hocalhost:8081/访问
 
-# 五、接口说明（RESTful Api）
+## 6.1 使用 Docker Compose 一键部署
+
+在项目根目录下，执行以下命令：
+
+```bash
+# 构建所有服务镜像
+docker compose build
+
+# 启动所有服务（包括 Nacos、数据库和微服务）
+docker compose up -d
+
+# 查看服务运行状态
+docker compose ps
+
+# 查看服务日志
+docker compose logs -f [service-name]
+```
+
+启动成功后，可通过以下地址访问：
+- **Nacos 控制台**：http://localhost:8848/nacos（默认用户名/密码：nacos/nacos）
+- **课程服务**：http://localhost:8081
+- **用户服务**：http://localhost:8082
+- **选课服务**：http://localhost:8083
+
+## 6.2 Nacos 部署说明
+
+本项目使用 Nacos 作为服务注册与发现中心，Nacos 已集成在 `docker-compose.yml` 中，配置如下：
+
+- **镜像版本**：nacos/nacos-server:v3.1.0
+- **运行模式**：standalone（单机模式）
+- **端口映射**：
+  - 8848：Nacos 主端口（服务注册与发现）
+  - 9848：Nacos gRPC 端口
+  - 8080：Nacos 控制台端口（已映射到 8848）
+- **命名空间**：dev
+- **服务组**：COURSEHUB_GROUP
+
+### 服务注册配置
+
+各微服务通过 Spring Cloud Alibaba Nacos Discovery 自动注册到 Nacos，配置示例：
+
+```yaml
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: dev
+        group: COURSEHUB_GROUP
+        ephemeral: true
+```
+
+启动服务后，可在 Nacos 控制台的"服务管理 -> 服务列表"中查看已注册的服务实例。
+
+### 停止服务
+
+```bash
+# 停止所有服务
+docker compose down
+
+# 停止并删除数据卷（谨慎使用）
+docker compose down -v
+```
+
+# 七、接口说明（RESTful Api）
 详细接口信息见[API接口文档.md]
 ## 系统结构
 ### Controller层
@@ -239,4 +265,12 @@ C:.
   "timestamp": "2025-11-02T22:35:08.365"
 }
 ```
+
+# 八、注意事项
+
+1. **数据库初始化**：首次启动时，数据库表结构会自动创建（通过 JPA 的 `ddl-auto: update`）
+2. **服务启动顺序**：Nacos 会先启动，各微服务会等待数据库健康检查通过后再启动
+3. **服务间通信**：微服务之间通过服务名（如 `catalog-service`）进行通信，无需硬编码 IP 地址
+4. **数据持久化**：数据库数据存储在 Docker 数据卷中，删除容器不会丢失数据（除非使用 `docker compose down -v`）
+5. **端口占用**：确保本地端口 8081、8082、8083、8848、3307、3308、3309 未被占用
 

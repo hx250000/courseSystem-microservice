@@ -2,15 +2,17 @@
 
 ## 项目概述
 
-本项目是一个基于微服务架构的校园选课系统，包含两个核心服务：
+本项目是一个基于微服务架构的校园选课系统，包含三个核心服务：
 - **catalog-service**：课程目录服务，负责课程信息的管理
-- **enrollment-service**：选课服务，负责学生信息和选课记录的管理
+- **enrollment-service**：选课服务，负责选课记录的管理
+- **user-service**：用户服务，负责学生信息的管理
 
 ## 服务信息
 
 | 服务名称 | 端口 | 基础路径 | 数据库 |
 |---------|------|---------|--------|
 | catalog-service | 8081 | /api/courses | catalog_db |
+| user-service | 8082 | /api/users/students | user_db |
 | enrollment-service | 8083 | /api/enrollments | enrollment_db |
 
 ## 统一响应格式
@@ -414,6 +416,134 @@ Content-Type: application/json
 
 ---
 
+### 1.6 增加课程已选人数
+
+**接口描述**：增加指定课程的已选人数（由 enrollment-service 调用）
+
+**请求方式**：`PUT`
+
+**请求路径**：`/api/courses/{courseId}/increment`
+
+**路径参数**：
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|------|------|------|
+| courseId | String | 是 | 课程ID |
+
+**响应示例**：
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "data": {
+    "id": "uuid",
+    "courseId": "CS101",
+    "title": "数据结构",
+    "instructor": {
+      "instructorId": "T001",
+      "name": "张老师",
+      "email": "zhang@example.com"
+    },
+    "scheduleSlot": {
+      "dayOfWeek": "MONDAY",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "expectedAttendance": 50
+    },
+    "capacity": 50,
+    "enrolled": 31,
+    "createdAt": "2024-01-01T10:00:00"
+  },
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+**错误响应**（课程不存在）：
+```json
+{
+  "code": 404,
+  "message": "课程不存在！",
+  "data": null,
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+**错误响应**（课程人数已满）：
+```json
+{
+  "code": 409,
+  "message": "课程人数已满！",
+  "data": null,
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+---
+
+### 1.7 减少课程已选人数
+
+**接口描述**：减少指定课程的已选人数（由 enrollment-service 调用）
+
+**请求方式**：`PUT`
+
+**请求路径**：`/api/courses/{courseId}/decrement`
+
+**路径参数**：
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|------|------|------|
+| courseId | String | 是 | 课程ID |
+
+**响应示例**：
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "data": {
+    "id": "uuid",
+    "courseId": "CS101",
+    "title": "数据结构",
+    "instructor": {
+      "instructorId": "T001",
+      "name": "张老师",
+      "email": "zhang@example.com"
+    },
+    "scheduleSlot": {
+      "dayOfWeek": "MONDAY",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "expectedAttendance": 50
+    },
+    "capacity": 50,
+    "enrolled": 29,
+    "createdAt": "2024-01-01T10:00:00"
+  },
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+**错误响应**（课程不存在）：
+```json
+{
+  "code": 404,
+  "message": "课程不存在！",
+  "data": null,
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+**错误响应**（课程人数已空）：
+```json
+{
+  "code": 409,
+  "message": "课程人数已空！",
+  "data": null,
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+---
+
 ## 二、Enrollment Service (选课服务)
 
 ### 2.1 学生管理接口
@@ -780,6 +910,16 @@ http://localhost:8083/api/enrollments
 }
 ```
 
+**错误响应**（学生不存在）：
+```json
+{
+  "code": 404,
+  "message": "学生不存在：S001",
+  "data": null,
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
 ---
 
 #### 2.2.3 根据课程ID获取选课记录
@@ -817,6 +957,16 @@ http://localhost:8083/api/enrollments
       "createdAt": "2024-01-01T11:00:00"
     }
   ],
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
+**错误响应**（课程不存在）：
+```json
+{
+  "code": 404,
+  "message": "课程不存在：CS101",
+  "data": null,
   "timestamp": "2024-01-01T12:00:00"
 }
 ```
@@ -863,7 +1013,7 @@ POST /api/enrollments?studentId=S001&courseId=CS101
 ```json
 {
   "code": 404,
-  "message": "学生不存在！",
+  "message": "学生不存在：S001",
   "data": null,
   "timestamp": "2024-01-01T12:00:00"
 }
@@ -892,18 +1042,26 @@ POST /api/enrollments?studentId=S001&courseId=CS101
 **注意**：如果学生曾选过该课程但已退课（status=DROPPED），系统会将其状态恢复为 ACTIVE，而不是抛出错误。
 
 **业务说明**：
-- 系统会验证学生是否存在（通过调用 user-service）
-- 系统会验证课程是否存在（通过调用 catalog-service）
+- 系统会验证学生是否存在（通过调用 user-service 的 `/api/users/students/{studentId}` 接口）
+- 系统会验证课程是否存在（通过调用 catalog-service 的 `/api/courses/{courseId}` 接口）
 - 如果学生已选该课程且状态为 ACTIVE，返回 409 冲突错误
 - 如果学生已选该课程但状态为 DROPPED，系统会恢复选课记录为 ACTIVE 状态
 - 选课成功后，系统会调用 catalog-service 的增量接口（`/api/courses/{courseId}/increment`）来更新课程已选人数
-```
+- increment 接口会检查课程容量，如果已选人数达到容量上限，会抛出"课程人数已满！"错误
 
 ---
 
 #### 2.2.5 丢弃选课记录（通过学生ID和课程ID）
 
-**接口描述**：学生退课，将指定学生和课程的选课记录标记为 DROPPED 状态，并自动更新课程已选人数
+**接口描述**：学生退课，将指定学生和课程的选课记录标记为 DROPPED 状态（不删除记录），并自动更新课程已选人数
+
+**业务说明**：
+- 系统会验证学生是否存在（通过调用 user-service）
+- 系统会查找对应的选课记录
+- 如果选课记录不存在，返回 404 错误
+- 将选课记录的 status 设置为 DROPPED（不会物理删除）
+- 调用 catalog-service 的 decrement 接口（`/api/courses/{courseId}/decrement`）来减少课程已选人数
+- decrement 接口会检查已选人数，如果已选人数为 0，会抛出"课程人数已空！"错误
 
 **请求方式**：`DELETE`
 
@@ -941,7 +1099,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 ```json
 {
   "code": 404,
-  "message": "学生不存在！",
+  "message": "学生不存在：S001",
   "data": null,
   "timestamp": "2024-01-01T12:00:00"
 }
@@ -961,7 +1119,14 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 
 #### 2.2.6 丢弃选课记录（通过ID）
 
-**接口描述**：根据选课记录ID丢弃选课记录（标记为DROPPED），并自动更新课程已选人数
+**接口描述**：根据选课记录ID物理删除选课记录，并自动更新课程已选人数
+
+**业务说明**：
+- 系统会根据ID查找选课记录
+- 如果选课记录不存在，返回 404 错误
+- 获取选课记录对应的课程ID
+- 调用 catalog-service 的 decrement 接口（`/api/courses/{courseId}/decrement`）来减少课程已选人数
+- 物理删除选课记录（与 deleteEnrollment 方法不同，此方法会真正删除记录）
 
 **请求方式**：`DELETE`
 
@@ -1102,6 +1267,8 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 | 时间安排为空 | 400 | "课程时间安排不能为空！" |
 | 容量无效 | 400 | "课程容量必须大于 0！" |
 | 存在选课记录 | 409 | "无法删除：该课程存在选课记录！" |
+| 课程人数已满 | 409 | "课程人数已满！" |
+| 课程人数已空 | 409 | "课程人数已空！" |
 
 #### Enrollment Service 错误消息
 
@@ -1109,7 +1276,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 
 | 错误类型 | 状态码 | 错误消息 |
 |---------|-------|---------|
-| 学生不存在 | 404 | "学生不存在！" |
+| 学生不存在 | 404 | "学生不存在！"（user-service 返回） |
 | 学号已存在 | 409 | "该学号已存在！"、"学号已存在！" |
 | 邮箱已被注册 | 409 | "该邮箱已被注册！" |
 | 邮箱为空 | 400 | "邮箱不能为空！" |
@@ -1120,7 +1287,7 @@ DELETE /api/enrollments?studentId=S001&courseId=CS101
 
 | 错误类型 | 状态码 | 错误消息 |
 |---------|-------|---------|
-| 学生不存在 | 404 | "学生不存在！"、"学生不存在" |
+| 学生不存在 | 404 | "学生不存在：{studentId}" |
 | 课程不存在 | 404 | "课程不存在：{courseId}" |
 | 选课记录不存在 | 404 | "选课记录不存在！"、"选课记录不存在!" |
 | 已选该课程（ACTIVE） | 409 | "该学生已选择该课程！" |
@@ -1193,8 +1360,9 @@ curl -X DELETE "http://localhost:8083/api/enrollments?studentId=S001&courseId=CS
 2. **数据一致性**：
    - 选课操作会检查课程是否存在（通过调用 catalog-service）
    - 选课操作会检查学生是否存在（通过调用 user-service）
-   - 选课操作会自动更新课程已选人数（通调用 catalog-service 的 increment/decrement 接口）
-   - 课程容量检查当前已禁用，其他服务可以根据业务需求处理平程需求
+- 选课操作会自动更新课程已选人数（通过调用 catalog-service 的 increment 接口）
+- 退课操作会自动更新课程已选人数（通过调用 catalog-service 的 decrement 接口）
+- increment/decrement 接口会检查课程容量和已选人数，超出容量或已选人数为负时会抛出错误
 
 3. **唯一性约束**：
    - courseId 必须唯一
@@ -1210,7 +1378,18 @@ curl -X DELETE "http://localhost:8083/api/enrollments?studentId=S001&courseId=CS
 5. **删除操作**：
    - 删除课程使用 UUID（id），不是 courseId
    - 删除学生使用 UUID（id），不是 studentId
-   - 删除选课记录可以使用 UUID（id）或学生ID+课程ID
+   - 删除选课记录有两种方式：
+     - `DELETE /api/enrollments?studentId=xxx&courseId=xxx`：将选课记录状态改为 DROPPED（逻辑删除）
+     - `DELETE /api/enrollments/{id}`：物理删除选课记录
+
+6. **课程人数管理**：
+   - increment 接口：增加课程已选人数，会检查是否超过容量
+   - decrement 接口：减少课程已选人数，会检查是否为负数
+   - 这两个接口由 enrollment-service 内部调用，不建议外部直接调用
+
+7. **服务间调用**：
+   - enrollment-service 通过 RestTemplate 调用 catalog-service 和 user-service
+   - catalog-service 通过 RestTemplate 调用 enrollment-service（用于删除课程时检查是否有选课记录）
 
 ---
 
