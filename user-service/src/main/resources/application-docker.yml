@@ -30,6 +30,13 @@ spring:
         password: nacos
         enabled: true
 
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 3000        # 连接超时3秒
+        readTimeout: 5000           # 读取超时5秒
+
 management:
   endpoints:
     web:
