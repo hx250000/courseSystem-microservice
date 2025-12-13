@@ -26,8 +26,6 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final DiscoveryClient discoveryClient;
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired
     private EnrollmentClient enrollmentClient;
@@ -150,10 +148,6 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("学生不存在!"));
         String studentId = student.getStudentId();
 
-        String url = enrollmentServiceUrl + "/api/student/" + studentId;
-
-        Map<String, Object> studentEnrolledResponse = restTemplate.getForObject(url, Map.class);
-
         ApiResponse<List<EnrollmentDto>> enrollmentResponse;
         try{
             enrollmentResponse= enrollmentClient.getEnrollmentsByStudentId(studentId);
@@ -162,9 +156,6 @@ public class UserService {
             throw new RuntimeException("[Feign]无法访问 enrollment-service！"+e);
         }
 
-        Map<String, Object> studentEnrolledData = (Map<String, Object>) studentEnrolledResponse.get("data");
-
-        //boolean hasEnrollments = !(studentEnrolledData.isEmpty());
         boolean hasEnrollments = enrollmentResponse.getData() != null && !enrollmentResponse.getData().isEmpty();
         if (hasEnrollments) {
             throw new ResourceConflictException("无法删除：该学生存在选课记录！");

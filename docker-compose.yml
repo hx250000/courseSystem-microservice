@@ -82,18 +82,20 @@ services:
       retries: 5
     restart: unless-stopped
   
-  catalog-service:
+  catalog-service-1:
     build:
       context: ./catalog-service
       dockerfile: Dockerfile
 #    container_name: catalog-service-hw7
-    ports:
-      - "8081:8081"
+#    ports:
+#      - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
       SPRING_DATASOURCE_URL: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
+      SERVER_PORT: 8081
     depends_on:
       catalog-db:
         condition: service_healthy
@@ -101,20 +103,65 @@ services:
         condition: service_started
     networks:
       - coursehub-network
-    restart: unless-stopped
 
-  user-service:
+  catalog-service-2:
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    #    container_name: catalog-service-hw7
+#    ports:
+#      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SERVER_PORT: 8081
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+    networks:
+      - coursehub-network
+
+  catalog-service-3:
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    #    container_name: catalog-service-hw7
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+      SERVER_PORT: 8081
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+    networks:
+      - coursehub-network
+
+  user-service-1:
     build:
       context: ./user-service
       dockerfile: Dockerfile
 #    container_name: user-service-hw7
-    ports:
-      - "8082:8082"
+#    ports:
+#      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
+      SERVER_PORT: 8082
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
     depends_on:
       user-db:
         condition: service_healthy
@@ -124,6 +171,51 @@ services:
       - coursehub-network
     restart: unless-stopped
 
+  user-service-2:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    #    container_name: user-service-hw7
+#    ports:
+#      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVER_PORT: 8082
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+    depends_on:
+      user-db:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+    networks:
+      - coursehub-network
+    restart: unless-stopped
+
+  user-service-3:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    #    container_name: user-service-hw7
+#    ports:
+#      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVER_PORT: 8082
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+    depends_on:
+      user-db:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+    networks:
+      - coursehub-network
+    restart: unless-stopped
 
   enrollment-service:
     build:
@@ -137,21 +229,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://enrollment-db:3306/enrollment_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
+      SERVER_PORT: 8083
+      SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
     depends_on:
       enrollment-db:
         condition: service_healthy
-      catalog-service:
-        condition: service_started
-      user-service:
-        condition: service_started
       nacos:
         condition: service_started
     networks:
       - coursehub-network
     restart: unless-stopped
-
-  
-  
 
 networks:
   coursehub-network:
