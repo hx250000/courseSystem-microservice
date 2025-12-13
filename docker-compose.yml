@@ -12,7 +12,7 @@ services:
     ports:
       - "8848:8848"
       - "9848:9848"
-      - "8080:8080"
+      - "8100:8080"
     networks:
       - coursehub-network
       
