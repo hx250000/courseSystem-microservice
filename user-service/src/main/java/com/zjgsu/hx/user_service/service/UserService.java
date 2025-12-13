@@ -24,7 +24,9 @@ public class UserService {
     private final DiscoveryClient discoveryClient;
     @Autowired
     private RestTemplate restTemplate;
-    private final String enrollmentServiceUrl="http://enrollment-service";
+
+    @Value("${enrollment-service.url}")
+    private String enrollmentServiceUrl;
 
     public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, DiscoveryClient discoveryClient) {
         this.studentRepository = studentRepository;

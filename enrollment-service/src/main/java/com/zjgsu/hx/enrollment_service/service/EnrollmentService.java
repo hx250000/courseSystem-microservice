@@ -1,5 +1,6 @@
 package com.zjgsu.hx.enrollment_service.service;
 
+import com.zjgsu.hx.enrollment_service.client.UserClient;
 import com.zjgsu.hx.enrollment_service.exception.ResourceConflictException;
 import com.zjgsu.hx.enrollment_service.exception.ResourceNotFoundException;
 import com.zjgsu.hx.enrollment_service.model.Enrollment;
@@ -7,6 +8,7 @@ import com.zjgsu.hx.enrollment_service.model.Status;
 import com.zjgsu.hx.enrollment_service.repository.EnrollmentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -18,18 +20,22 @@ import java.util.Map;
 @Service
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private UserClient userClient;
+
     @Autowired
     private RestTemplate restTemplate;
-    //@Value("${catalog-service.url}") // 引用 application.yml 中的配置
-    private final String catalogServiceUrl="http://catalog-service";
-    //@Value("${user-service.url}")
-    private final String userServiceUrl="http://user-service";
+
+    @Value("${catalog-service.url}") // 引用 application-docker.yml 中的配置
+    private String catalogServiceUrl;
+
+    @Value("${user-service.url}")
+    private String userServiceUrl;
 
     public EnrollmentService(EnrollmentRepository enrollmentRepository
-                             ) {
+    ) {
         this.enrollmentRepository = enrollmentRepository;
-
-
     }
 
     public List<Enrollment> findAll() {

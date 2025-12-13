@@ -1,0 +1,48 @@
+# catalog-service
+
+server:
+  port: 8081  # 项目运行端口
+
+spring:
+  application:
+    name: catalog-service
+  datasource:
+      url: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update          # 第一次开发可用 update，生成表结构
+    show-sql: true              # 控制台打印 SQL 语句
+    properties:
+      hibernate:
+        format_sql: true        # 格式化 SQL
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: dev
+        group: COURSEHUB_GROUP
+        ephemeral: true
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
+        username: nacos
+        password: nacos
+        enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+    
+enrollment-service:
+  url: http://enrollment-service
+
+logging:
+  level:
+    com.zjgsu.hx.catalog_service: INFO
+    org.springframework.web: INFO
+

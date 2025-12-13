@@ -1,15 +1,14 @@
-# catalog-service
-
+# enrollment-service
 server:
-  port: 8081  # 项目运行端口
+  port: 8083  # 项目运行端口
 
 spring:
   application:
-    name: catalog-service
+    name: enrollment-service
   datasource:
-      url: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+    url: jdbc:mysql://enrollment-db:3306/enrollment_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
   jpa:
     hibernate:
       ddl-auto: update          # 第一次开发可用 update，生成表结构
@@ -37,12 +36,15 @@ management:
     web:
       exposure:
         include: health
-    
-enrollment-service:
-  url: http://enrollment-service:8083
+
+catalog-service:
+  url: http://catalog-service
+
+user-service:
+  url: http://user-service
 
 logging:
   level:
-    com.zjgsu.hx.catalog_service: INFO
+    com.zjgsu.hx.enrollment_service: INFO
     org.springframework.web: INFO
 

@@ -5,7 +5,7 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:mysql://user-db:3306/user_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/user_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 123456
   jpa:
@@ -20,7 +20,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
+        server-addr: localhost:8848
         namespace: dev
         group: COURSEHUB_GROUP
         ephemeral: true
@@ -37,10 +37,10 @@ management:
         include: health
 
 catalog-service:
-  url: http://catalog-service:8081
+  url: http://localhost:8081
 
 enrollment-service:
-  url: http://enrollment-service:8083
+  url: http://localhost:8083
 
 logging:
   level:

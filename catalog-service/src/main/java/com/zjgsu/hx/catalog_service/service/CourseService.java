@@ -19,8 +19,8 @@ import java.util.Map;
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
-    //@Value("${enrollment-service.url}")
-    private final String enrollmentServiceUrl="http://enrollment-service";
+    @Value("${enrollment-service.url}")
+    private String enrollmentServiceUrl;
     @Autowired
     private RestTemplate restTemplate;
 
