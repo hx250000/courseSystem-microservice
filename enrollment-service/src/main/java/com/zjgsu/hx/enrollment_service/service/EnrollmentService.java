@@ -1,11 +1,15 @@
 package com.zjgsu.hx.enrollment_service.service;
 
+import com.zjgsu.hx.enrollment_service.client.CatalogClient;
 import com.zjgsu.hx.enrollment_service.client.UserClient;
+import com.zjgsu.hx.enrollment_service.dto.CourseDto;
+import com.zjgsu.hx.enrollment_service.dto.StudentDto;
 import com.zjgsu.hx.enrollment_service.exception.ResourceConflictException;
 import com.zjgsu.hx.enrollment_service.exception.ResourceNotFoundException;
 import com.zjgsu.hx.enrollment_service.model.Enrollment;
 import com.zjgsu.hx.enrollment_service.model.Status;
 import com.zjgsu.hx.enrollment_service.repository.EnrollmentRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +27,9 @@ public class EnrollmentService {
 
     @Autowired
     private UserClient userClient;
+
+    @Autowired
+    private CatalogClient catalogClient;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -46,29 +53,52 @@ public class EnrollmentService {
      */
     @Transactional
     public Enrollment createEnrollment(String studentId, String courseId) {
-        System.out.println(restTemplate.getClass());
-        Map<?,?> student=getStudentByStudentId(studentId);
+        //System.out.println(restTemplate.getClass());
+        // 1. 调用用户服务验证学生是否存在
+        try
+        {
+            StudentDto stu = userClient.getStudent(studentId);
+        }
+        catch (FeignException.NotFound e){
+            throw new ResourceNotFoundException("学生不存在："+ studentId);
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("无法访问用户服务！"+ e);
+        }
+        //Map<?,?> student=getStudentByStudentId(studentId);
 
         // 2. 调用课程目录服务验证课程是否存在
-        String courseurl = catalogServiceUrl + "/api/courses/" + courseId;
-        Map<String, Object> courseResponse;
-        try {
-            courseResponse = restTemplate.getForObject(courseurl, Map.class);
-        } catch (HttpClientErrorException.NotFound e) {
+//        String courseurl = catalogServiceUrl + "/api/courses/" + courseId;
+//        Map<String, Object> courseResponse;
+//        try {
+//            courseResponse = restTemplate.getForObject(courseurl, Map.class);
+//        } catch (HttpClientErrorException.NotFound e) {
+//            throw new ResourceNotFoundException("课程不存在："+ courseId);
+//        }
+        try{
+            CourseDto c=catalogClient.getCourse(courseId);
+        }
+        catch (FeignException.NotFound e){
             throw new ResourceNotFoundException("课程不存在："+ courseId);
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("无法访问课程服务！"+ e);
         }
 
         Enrollment enrollment;
+        // 3. 检查是否已选该课程
         if (enrollmentRepository.existsByStudentIdAndCourseId(studentId,courseId
                 )) {
             enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId,courseId).get();
             if(enrollment.getStatus().equals(Status.ACTIVE)){
                 throw new ResourceConflictException("该学生已选择该课程！");
             }
+            // 4. 如果之前退选过该课程，则重新激活选课记录
             else{
                 enrollment.setStatus(Status.ACTIVE);
             }
         }
+        // 5. 保存选课记录
         else{
             enrollment = new Enrollment();
             enrollment.setCourseId(courseId);
@@ -86,18 +116,37 @@ public class EnrollmentService {
 
     public List<Enrollment> getEnrollmentsByStudent(String studentId) {
         // 确保学生存在
-        Map<?,?> student=getStudentByStudentId(studentId);
+        //Map<?,?> student=getStudentByStudentId(studentId);
+        try
+        {
+            StudentDto stu = userClient.getStudent(studentId);
+        }
+        catch (FeignException.NotFound e){
+            throw new ResourceNotFoundException("学生不存在："+ studentId);
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("无法访问用户服务！"+ e);
+        }
+
         return enrollmentRepository.findByStudentId(studentId);
     }
     public List<Enrollment> getEnrollmentsByCourse(String courseId) {
         // 调用课程目录服务验证课程是否存在
-        String url = catalogServiceUrl + "/api/courses/" + courseId;
-        Map<String, Object> courseResponse;
-        try {
-            courseResponse = restTemplate.getForObject(url, Map.class);
-        } catch (HttpClientErrorException.NotFound e) {
+        try{
+            CourseDto c=catalogClient.getCourse(courseId);
+        }
+        catch (FeignException.NotFound e){
             throw new ResourceNotFoundException("课程不存在："+ courseId);
         }
+        catch (Exception e){
+            throw new ResourceNotFoundException("无法访问课程服务！"+ e);
+        }
+//        Map<String, Object> courseResponse;
+//        try {
+//            courseResponse = restTemplate.getForObject(url, Map.class);
+//        } catch (HttpClientErrorException.NotFound e) {
+//            throw new ResourceNotFoundException("课程不存在："+ courseId);
+//        }
         return enrollmentRepository.findByCourseId(courseId);
     }
     /*
@@ -107,7 +156,16 @@ public class EnrollmentService {
     public Enrollment deleteEnrollment(String studentId, String courseId) {
         // 找到该学生的选课记录
         System.out.printf("正在删除选课记录，学生=%s,课程=%s\n",studentId,courseId);
-        Map<?,?> student=getStudentByStudentId(studentId);
+        try
+        {
+            StudentDto stu = userClient.getStudent(studentId);
+        }
+        catch (FeignException.NotFound e){
+            throw new ResourceNotFoundException("学生不存在："+ studentId);
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("无法访问用户服务！"+ e);
+        }
 
         Enrollment enrollment=enrollmentRepository.findByStudentIdAndCourseId(studentId,courseId)
                 .orElseThrow(()->new ResourceNotFoundException("选课记录不存在！"));
@@ -148,24 +206,27 @@ public class EnrollmentService {
     }
 
     private void increaseCourseEnrolledCount(String courseId){
-        String url=catalogServiceUrl+"/api/courses/"+courseId+"/increment";
-        restTemplate.put(url, null);
+//        String url=catalogServiceUrl+"/api/courses/"+courseId+"/increment";
+//        restTemplate.put(url, null);
+        catalogClient.increaseEnrolledCount(courseId);
 
     }
     private void decreaseCourseEnrolledCount(String courseId){
-        String url=catalogServiceUrl+"/api/courses/"+courseId+"/decrement";
-        restTemplate.put(url, null);
+//        String url=catalogServiceUrl+"/api/courses/"+courseId+"/decrement";
+//        restTemplate.put(url, null);
+        catalogClient.decreaseEnrolledCount(courseId);
 
     }
 
-    public Map<String,Object> getStudentByStudentId(String studentId){
-        String url = userServiceUrl + "/api/users/students/" + studentId;
-        Map<String, Object> studentResp;
-        try {
-            studentResp = restTemplate.getForObject(url, Map.class);
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new ResourceNotFoundException("学生不存在："+ studentId);
-        }
-        return studentResp;
-    }
+//    public Map<String,Object> getStudentByStudentId(String studentId){
+//        String url = userServiceUrl + "/api/users/students/" + studentId;
+//        Map<String, Object> studentResp;
+//        try {
+//            studentResp = restTemplate.getForObject(url, Map.class);
+//        } catch (HttpClientErrorException.NotFound e) {
+//            throw new ResourceNotFoundException("学生不存在："+ studentId);
+//        }
+//        return studentResp;
+//    }
 }
+
