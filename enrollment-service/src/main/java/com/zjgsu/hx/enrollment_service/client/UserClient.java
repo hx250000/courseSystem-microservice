@@ -1,5 +1,6 @@
 package com.zjgsu.hx.enrollment_service.client;
 
+import com.zjgsu.hx.enrollment_service.common.ApiResponse;
 import com.zjgsu.hx.enrollment_service.dto.StudentDto;
 import com.zjgsu.hx.enrollment_service.dto.TeacherDto;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,10 +15,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 public interface UserClient {
 
     @GetMapping("/api/users/students/{id}")
-    StudentDto getStudent(@PathVariable("id") String id);
+    ApiResponse<StudentDto> getStudent(@PathVariable("id") String id);
 
     @GetMapping("/api/users/teachers/{id}")
-    TeacherDto getTeacher(@PathVariable("id") String id);
+    ApiResponse<TeacherDto> getTeacher(@PathVariable("id") String id);
 
     //@PutMapping()
 
