@@ -1,11 +1,14 @@
 package com.zjgsu.hx.catalog_service.service;
 
+import com.zjgsu.hx.catalog_service.client.EnrollmentClient;
 import com.zjgsu.hx.catalog_service.common.ApiResponse;
+import com.zjgsu.hx.catalog_service.dto.EnrollmentDto;
 import com.zjgsu.hx.catalog_service.exception.ResourceConflictException;
 import com.zjgsu.hx.catalog_service.exception.ResourceNotFoundException;
 import com.zjgsu.hx.catalog_service.model.Course;
 import com.zjgsu.hx.catalog_service.model.ScheduleSlot;
 import com.zjgsu.hx.catalog_service.repository.CourseRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +22,13 @@ import java.util.Map;
 @Service
 public class CourseService {
     private final CourseRepository courseRepository;
+
     @Value("${enrollment-service.url}")
     private String enrollmentServiceUrl;
+
+    @Autowired
+    private EnrollmentClient enrollmentClient;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -88,11 +96,20 @@ public class CourseService {
         // 1. 调用 enrollment-service，获取该课程的所有选课记录
         String url = enrollmentServiceUrl + "/api/enrollments/course/" + id;
 
-        ApiResponse<List<Map<String, Object>>> response =
-                restTemplate.getForObject(url, ApiResponse.class);
+        ApiResponse<List<EnrollmentDto>> enrollmentResponse;
+        try{
+           enrollmentResponse =
+                    enrollmentClient.getEnrollmentsByCourseId(id);
+        }
+        catch (Exception e){
+            throw new RuntimeException("[Feign]无法访问 enrollment-service！"+e);
+        }
+
+//        ApiResponse<List<Map<String, Object>>> response =
+//                restTemplate.getForObject(url, ApiResponse.class);
 
         // enrollment-service 返回的数据在 response.getData()
-        List<?> enrollments = response.getData();
+        List<?> enrollments = enrollmentResponse.getData();
         boolean hasEnrollments = enrollments != null && !enrollments.isEmpty();
 
 //        boolean hasEnrollments = !enrollmentRepository
@@ -105,29 +122,6 @@ public class CourseService {
         return course;
     }
 
-//    @Transactional
-//    public int increaseEnrollmentCount(String courseId) {
-//        Course course = courseRepository.findByCourseId(courseId).
-//                orElseThrow(()->new ResourceNotFoundException("课程不存在！"));
-//        if (course.getEnrolled()>=course.getCapacity()){
-//            throw new ResourceConflictException("选课人数已满！");
-//        }
-//        course.addEnrolled();
-//        courseRepository.save(course);
-//        return course.getEnrolled();
-//    }
-//
-//    @Transactional
-//    public int decreaseEnrollmentCount(String courseId) {
-//        Course course = courseRepository.findByCourseId(courseId).
-//                orElseThrow(()->new ResourceNotFoundException("课程不存在！"));
-//        if (course.getEnrolled()<=0){
-//            throw new ResourceConflictException("选课人数已空！");
-//        }
-//        course.deleteEnrolled();
-//        courseRepository.save(course);
-//        return course.getEnrolled();
-//    }
 
     private void validateCourse(Course course, boolean isCreating) {
         if (course == null) {

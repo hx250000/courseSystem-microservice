@@ -32,9 +32,6 @@ public class EnrollmentService {
     @Autowired
     private CatalogClient catalogClient;
 
-    @Autowired
-    private RestTemplate restTemplate;
-
     @Value("${catalog-service.url}") // 引用 application-docker.yml 中的配置
     private String catalogServiceUrl;
 
@@ -71,14 +68,6 @@ public class EnrollmentService {
         }
         //Map<?,?> student=getStudentByStudentId(studentId);
 
-        // 2. 调用课程目录服务验证课程是否存在
-//        String courseurl = catalogServiceUrl + "/api/courses/" + courseId;
-//        Map<String, Object> courseResponse;
-//        try {
-//            courseResponse = restTemplate.getForObject(courseurl, Map.class);
-//        } catch (HttpClientErrorException.NotFound e) {
-//            throw new ResourceNotFoundException("课程不存在："+ courseId);
-//        }
         System.out.println("[Feign]正在查询记录，学生="+studentId+",课程="+courseId);
         try{
             ApiResponse<CourseDto> c=catalogClient.getCourse(courseId);
@@ -123,7 +112,6 @@ public class EnrollmentService {
 
     public List<Enrollment> getEnrollmentsByStudent(String studentId) {
         // 确保学生存在
-        //Map<?,?> student=getStudentByStudentId(studentId);
         System.out.println("[Feign]正在查询学生选课记录，学生="+studentId);
         try
         {
@@ -158,12 +146,7 @@ public class EnrollmentService {
         catch (Exception e){
             throw new ResourceNotFoundException("无法访问课程服务！"+ e);
         }
-//        Map<String, Object> courseResponse;
-//        try {
-//            courseResponse = restTemplate.getForObject(url, Map.class);
-//        } catch (HttpClientErrorException.NotFound e) {
-//            throw new ResourceNotFoundException("课程不存在："+ courseId);
-//        }
+
         return enrollmentRepository.findByCourseId(courseId);
     }
     /*
@@ -191,16 +174,6 @@ public class EnrollmentService {
         Enrollment enrollment=enrollmentRepository.findByStudentIdAndCourseId(studentId,courseId)
                 .orElseThrow(()->new ResourceNotFoundException("选课记录不存在！"));
 
-
-        // 更新课程人数
-        // 更新课程人数：先远程获取当前人数，再 PUT 更新
-        /*int enrolled = getEnrolledCount(courseId);
-        if (enrolled > 0) {
-            updateCourseEnrolledCount(courseId, enrolled - 1); // 远程更新减少 1
-        }
-        else {
-            throw new ResourceConflictException("课程人数已空！");
-        }*/
         decreaseCourseEnrolledCount(courseId);
 // 删除选课记录
         enrollment.setStatus(Status.DROPPED);
@@ -214,31 +187,21 @@ public class EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("选课记录不存在!"));
         String courseId=enrollment.getCourseId();
-        /*int enrolled = getEnrolledCount(courseId);
-        if (enrolled > 0) {
-            updateCourseEnrolledCount(courseId, enrolled - 1); // 远程更新减少 1
-        }
-        else {
-            throw new ResourceConflictException("课程人数已空！");
-        }*/
         decreaseCourseEnrolledCount(courseId);
         enrollmentRepository.deleteById(id);
         return enrollment;
     }
 
     private void increaseCourseEnrolledCount(String courseId){
-//        String url=catalogServiceUrl+"/api/courses/"+courseId+"/increment";
-//        restTemplate.put(url, null);
+
         catalogClient.increaseEnrolledCount(courseId);
 
     }
     private void decreaseCourseEnrolledCount(String courseId){
-//        String url=catalogServiceUrl+"/api/courses/"+courseId+"/decrement";
-//        restTemplate.put(url, null);
+
         catalogClient.decreaseEnrolledCount(courseId);
 
     }
-
 
 }
 
