@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/enrollments")
+@RequestMapping("/enrollments")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;

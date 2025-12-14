@@ -1,0 +1,46 @@
+server:
+  port: 8090  # 项目运行端口
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: dev
+        group: COURSEHUB_GROUP
+        ephemeral: true
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
+        username: nacos
+        password: nacos
+        enabled: true
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+
+        - id: catalog-service
+          uri: lb://catalog-service
+          predicates:
+            - Path=/api/courses/**
+          filters:
+            - StripPrefix=1
+
+        - id: enrollment-service
+          uri: lb://enrollment-service
+          predicates:
+            - Path=/api/enrollments/**
+          filters:
+            - StripPrefix=1
+
+logging:
+  level:
+    com.zjgsu.hx.user_service: INFO
+    org.springframework.web: INFO
+

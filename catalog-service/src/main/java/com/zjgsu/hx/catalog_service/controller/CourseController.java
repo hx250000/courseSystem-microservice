@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/courses")
 @Slf4j
 public class CourseController {
     private final CourseService courseService;
