@@ -1,15 +1,13 @@
-# catalog-service
-
 server:
-  port: 8081  # 项目运行端口
+  port: 8082  # 项目运行端口
 
 spring:
   application:
-    name: catalog-service
+    name: user-service
   datasource:
-      url: jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+    url: jdbc:mysql://localhost:3306/user_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
   jpa:
     hibernate:
       ddl-auto: update          # 第一次开发可用 update，生成表结构
@@ -22,7 +20,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
+        server-addr: localhost:8848
         namespace: dev
         group: COURSEHUB_GROUP
         ephemeral: true
@@ -37,12 +35,15 @@ management:
     web:
       exposure:
         include: health
-    
+
+catalog-service:
+  url: http://localhost:8081
+
 enrollment-service:
-  url: http://enrollment-service:8083
+  url: http://localhost:8083
 
 logging:
   level:
-    com.zjgsu.hx.catalog_service: INFO
+    com.zjgsu.hx.user_service: INFO
     org.springframework.web: INFO
 

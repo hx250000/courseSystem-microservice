@@ -3,14 +3,31 @@ package com.zjgsu.hx.catalog_service.controller;
 import com.zjgsu.hx.catalog_service.model.Course;
 import com.zjgsu.hx.catalog_service.service.CourseService;
 import com.zjgsu.hx.catalog_service.common.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
+@Slf4j
 public class CourseController {
     private final CourseService courseService;
+
+    @Value("${spring.application.name}")
+    private String serviceName;
+
+    @Value("${server.port}")
+    private String port;
+
+    @GetMapping("/test")
+    public String test() {
+        return "[User Service Instance: " +
+                serviceName +
+                ", Port: " +
+                port + "]";
+    }
 
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
@@ -23,6 +40,7 @@ public class CourseController {
 
     @GetMapping("/{courseId}")
     public ApiResponse<Course> getCourseByCourseId(@PathVariable String courseId) {
+        log.info("[{}:{}] handling getCourse {}", serviceName, port, courseId);
         return ApiResponse.success(courseService.findByCourseId(courseId));
     }
 

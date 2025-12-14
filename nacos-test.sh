@@ -18,7 +18,7 @@ echo ""
 echo "测试选课服务（enrollment-service）..."
 for i in {1..10}; do
   echo "第 $i 次请求:"
-  curl http://localhost:8083/api/enrollments/test
+  curl -X POST "http://localhost:8083/api/enrollments?studentId=2024001&courseId=CS101"
 done
 
 echo ""

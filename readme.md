@@ -184,87 +184,88 @@ docker compose down
 docker compose down -v
 ```
 
-# 七、接口说明（RESTful Api）
-详细接口信息见[API接口文档.md]
-## 系统结构
-### Controller层
-接收 HTTP 请求、调用 Service 层、返回统一响应
-### Service层
-实现业务逻辑、数据验证、规则控制
-### Repository层
-连接数据库，负责数据的存储与读取
-### Model层
-系统所需的数据结构模型
-## 1. 学生模块 `/students`
+# 七、接口说明（按微服务划分）
+详细接口信息与示例参考 `API接口文档.md`.这里只列出按模块拆分后的主要 REST 接口概要，便于快速查阅与调试。
 
-| 操作         | 方法   | URL              | 说明                     |
-| ------------ | ------ | ---------------- | ------------------------ |
-| 查询所有学生 | GET    | `/students`      | 获取全部学生信息         |
-| 查询单个学生 | GET    | `/students/{id}` | 通过 id 查询             |
-| 新增学生     | POST   | `/students`      | 创建新学生               |
-| 更新学生     | PUT    | `/students/{id}` | 修改学生信息             |
-| 删除学生     | DELETE | `/students/{id}` | 若存在选课记录则禁止删除 |
+服务映射：
+- `catalog-service`（课程服务）：`http://localhost:8081`
+- `user-service`（用户/学生服务）：`http://localhost:8082`
+- `enrollment-service`（选课服务）：`http://localhost:8083`
 
-示例请求（POST）：
+## 统一说明
+- 所有服务遵循 RESTful 风格，返回统一响应体（code/message/data/timestamp）。
+- 认证与权限：本项目不开启复杂认证，若需要请查看各服务 `application.yml` 与安全配置。
 
-```
-{
-  "studentId": "2023001",
-  "name": "张三",
-  "email": "zs@xx.com",
-  "grade": 2023
-  "major": "计算机科学"
-}
-```
+## A. 课程模块（catalog-service）
+Base URL: `http://localhost:8081`
 
-## 2. 课程模块 `/courses`
+| 操作         | 方法   | 路径                    | 说明                     |
+| ------------ | ------ | ----------------------- | ------------------------ |
+| 查询所有课程 | GET    | `/courses`              | 获取全部课程列表         |
+| 查询单个课程 | GET    | `/courses/{id}`         | 按课程 ID 获取详情       |
+| 新增课程     | POST   | `/courses`              | 创建新课程               |
+| 更新课程     | PUT    | `/courses/{id}`         | 更新课程信息             |
+| 删除课程     | DELETE | `/courses/{id}`         | 删除课程（若有关联选课则拒绝） |
 
-| 操作         | 方法   | URL             | 说明                         |
-| ------------ | ------ | --------------- | ---------------------------- |
-| 查询课程     | GET    | `/courses`      | 获取所有课程                 |
-| 查询单个课程 | GET    | `/courses/{id}` | 按 ID 获取                   |
-| 新增课程     | POST   | `/courses`      | 创建课程（需课程代码与名称） |
-| 更新课程     | PUT    | `/courses/{id}` | 修改课程信息                 |
-| 删除课程     | DELETE | `/courses/{id}` | 若存在选课记录则禁止删除     |
-
-示例请求（POST）：
-
+示例请求（POST /courses）：
 ```
 {
   "courseId": "C001",
   "title": "操作系统",
   "capacity": 60,
   "instructor": {},
-  "scheduleslot": {}
+  "scheduleslot":{}
 }
 ```
 
-## 3. 选课模块 `/enrollments`
+## B. 用户/学生模块（user-service）
+Base URL: `http://localhost:8082`
 
-| 操作         | 方法   | URL                                            | 说明             |
-| ------------ | ------ | ---------------------------------------------- | ---------------- |
-| 查询所有选课 | GET    | `/enrollments`                                 | 获取所有选课记录 |
-| 按学生查询   | GET    | `/enrollments/student/{studentId}`             | 某学生的选课     |
-| 按课程查询   | GET    | `/enrollments/course/{courseId}`               | 某课程的学生列表 |
-| 学生选课     | POST   | `/enrollments?studentId=2023001&courseId=C001` | 学生选课         |
-| 学生退课     | DELETE | `/enrollments` | 学生退课         |
-| 删除选课记录 | DELETE | `/enrollments/{id}`                            | 管理员删除       |
+| 操作         | 方法   | 路径                    | 说明                     |
+| ------------ | ------ | ----------------------- | ------------------------ |
+| 查询所有学生 | GET    | `/students`             | 获取学生列表             |
+| 查询单个学生 | GET    | `/students/{id}`        | 按学生 ID 查询           |
+| 新增学生     | POST   | `/students`             | 创建学生                 |
+| 更新学生     | PUT    | `/students/{id}`        | 更新学生信息             |
+| 删除学生     | DELETE | `/students/{id}`        | 删除学生（如有选课则拒绝） |
 
-### 4. 健康检查 `/health`
-| 操作         | 方法   | URL             | 说明                         |
-| ------------ | ------ | --------------- | ---------------------------- |
-| 查询数据库连接状态     | GET    | `/db`      | 获取数据库当前连接状态                 |
-
-返回示例：
-
+示例请求（POST /students）：
 ```
 {
-  "code": 200,
-  "message": "✅ 数据库连接正常",
-  "data": null,
-  "timestamp": "2025-11-02T22:35:08.365"
+  "studentId": "2023001",
+  "name": "张三",
+  "email": "zs@xx.com",
+  "grade": 2023,
+  "major": "计算机科学"
 }
 ```
+
+## C. 选课模块（enrollment-service）
+Base URL: `http://localhost:8083`
+
+| 操作           | 方法   | 路径                                      | 说明                     |
+| -------------- | ------ | ----------------------------------------- | ------------------------ |
+| 查询所有选课   | GET    | `/enrollments`                            | 获取所有选课记录         |
+| 按学生查询     | GET    | `/enrollments/student/{studentId}`        | 获取某学生的选课记录     |
+| 按课程查询     | GET    | `/enrollments/course/{courseId}`          | 获取某课程的选课学生列表 |
+| 学生选课       | POST   | `/enrollments`                            | body: {studentId, courseId}，创建选课记录 |
+| 学生退课       | DELETE | `/enrollments?studentId=&courseId=`      | 学生退课（query 参数）   |
+| 管理员删除记录 | DELETE | `/enrollments/{id}`                       | 根据选课记录 ID 删除     |
+
+示例请求（POST /enrollments）：
+```
+{
+  "studentId": "2023001",
+  "courseId": "C001"
+}
+```
+
+## D. 健康检查与监控
+- 各服务内置健康检查端点（如 `/actuator/health` 或自定义 `/health`），用于容器/Orchestrator 与 Nacos 健康探测。
+- 数据库连接检查：各服务在启动时会完成数据库连接测试，具体返回见对应服务的 `/actuator/health`。
+
+---
+更多接口细节（请求参数、响应示例、错误码说明）请打开 `API接口文档.md`，该文档包含完整的 OpenAPI/Swagger 描述以便生成客户端或文档页面。
 
 # 八、注意事项
 

@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+        System.out.println("Handling ResourceNotFoundException: " + ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.notFound(ex.getMessage()));
@@ -29,6 +30,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException ex) {
+        System.out.println("Handling NoResourceFoundException: " + ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.notFound("Resource not found: " + ex.getResourcePath()));
@@ -39,6 +41,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
+        System.out.println("Handling IllegalArgumentException: " + ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.badRequest(ex.getMessage()));
@@ -48,6 +51,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(ResourceConflictException ex) {
+        System.out.println("Handling ResourceConflictException: " + ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(409, ex.getMessage()));
@@ -59,6 +63,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
+        System.out.println("Handling other Exception: " + ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(500, "Internal server error: " + ex.getMessage()));

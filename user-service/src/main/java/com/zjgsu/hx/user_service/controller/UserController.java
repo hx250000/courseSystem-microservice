@@ -4,17 +4,34 @@ import com.zjgsu.hx.user_service.model.Student;
 import com.zjgsu.hx.user_service.model.Teacher;
 import com.zjgsu.hx.user_service.service.UserService;
 import com.zjgsu.hx.user_service.common.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
     private final UserService userService;
 
+    @Value("${spring.application.name}")
+    private String serviceName;
+
+    @Value("${server.port}")
+    private String port;
+
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "[User Service Instance: " +
+                serviceName +
+                ", Port: " +
+                port + "]";
     }
 
     @GetMapping("/students")
@@ -27,6 +44,7 @@ public class UserController {
 
     @GetMapping("/students/{id}")
     public ApiResponse<Student> getStudentByStudentId(@PathVariable String id) {
+        log.info("[{}:{}] handling getStudent {}", serviceName, port, id);
         return ApiResponse.success(userService.findStudentByStudentId(id));
     }
 

@@ -1,11 +1,15 @@
 package com.zjgsu.hx.user_service.service;
 
+import com.zjgsu.hx.user_service.client.EnrollmentClient;
+import com.zjgsu.hx.user_service.common.ApiResponse;
+import com.zjgsu.hx.user_service.dto.EnrollmentDto;
 import com.zjgsu.hx.user_service.exception.ResourceConflictException;
 import com.zjgsu.hx.user_service.exception.ResourceNotFoundException;
 import com.zjgsu.hx.user_service.model.Student;
 import com.zjgsu.hx.user_service.model.Teacher;
 import com.zjgsu.hx.user_service.repository.StudentRepository;
 import com.zjgsu.hx.user_service.repository.TeacherRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,15 +26,17 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final DiscoveryClient discoveryClient;
+
     @Autowired
-    private RestTemplate restTemplate;
-    private final String enrollmentServiceUrl="http://enrollment-service";
+    private EnrollmentClient enrollmentClient;
+
+    @Value("${enrollment-service.url}")
+    private String enrollmentServiceUrl;
 
     public UserService(StudentRepository studentRepository, TeacherRepository teacherRepository, DiscoveryClient discoveryClient) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.discoveryClient = discoveryClient;
-        //this.restTemplate = restTemplate;
     }
 
     public List<Teacher> findAllTeachers() {return teacherRepository.findAll();}
@@ -142,13 +148,15 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("学生不存在!"));
         String studentId = student.getStudentId();
 
-        String url = enrollmentServiceUrl + "/api/student/" + studentId;
+        ApiResponse<List<EnrollmentDto>> enrollmentResponse;
+        try{
+            enrollmentResponse= enrollmentClient.getEnrollmentsByStudentId(studentId);
+        }
+        catch (Exception e){
+            throw new RuntimeException("[Feign]无法访问 enrollment-service！"+e);
+        }
 
-        Map<String, Object> studentEnrolledResponse = restTemplate.getForObject(url, Map.class);
-
-        Map<String, Object> studentEnrolledData = (Map<String, Object>) studentEnrolledResponse.get("data");
-
-        boolean hasEnrollments = !(studentEnrolledData.isEmpty());
+        boolean hasEnrollments = enrollmentResponse.getData() != null && !enrollmentResponse.getData().isEmpty();
         if (hasEnrollments) {
             throw new ResourceConflictException("无法删除：该学生存在选课记录！");
         }
