@@ -174,6 +174,41 @@ spring:
 
 启动服务后，可在 Nacos 控制台的"服务管理 -> 服务列表"中查看已注册的服务实例。
 
+### OpenFeign / RestTemplate 配置
+各微服务通过 OpenFeign 进行服务间通信，示例配置：
+
+```yaml
+feign:
+  hystrix:
+    enabled: true
+```
+
+客户端定义方式
+
+```java
+@FeignClient(
+        name = "user-service",
+        contextId = "userClient"
+)
+public interface UserClient {
+
+  @GetMapping("/api/users/students/{id}")
+  ApiResponse<StudentDto> getStudent(@PathVariable("id") String id);
+
+  @GetMapping("/api/users/teachers/{id}")
+  ApiResponse<TeacherDto> getTeacher(@PathVariable("id") String id);
+  
+}
+```
+
+调用方式
+```java
+ApiResponse<StudentDto> response = userClient.getStudent(studentId);
+```
+
+
+
+
 ### 停止服务
 
 ```bash
